@@ -41,7 +41,7 @@
 
 ## 2. 대기열 상태 확인
 1. 사용자는 대기열 상태 확인 API를 호출합니다.
-2. 토큰 도메인은 토큰을 통해 토큰 정보를 확인합니다.
+2. 토큰 도메인은 토큰을 통해 사용자 대기열 정보를 확인합니다.
 3. 토큰 도메인은 데이터베이스에서 토큰의 대기열 상태를 조회합니다.
 4. 토큰 도메인은 사용자의 현재 상태(예: WAIT, ACTIVE, EXPIRED)와 대기열 정보를 사용자에게 반환합니다.
 ```mermaid
@@ -159,7 +159,7 @@ sequenceDiagram
         PaymentDomain->>Database: 사용자 잔액 조회
         Database-->>PaymentDomain: 현재 잔액
         PaymentDomain->>Database: 잔액 업데이트 (현재 잔액 + 충전 금액)
-        Database-->>PaymentDomain: 업데이트 완료
+        Database-->>PaymentDomain: 잔액 업데이트 완료
         PaymentDomain-->>Client: 잔액 충전 완료 메시지 (현재 잔액)
     end
 ```

@@ -24,7 +24,7 @@ public class QueueService {
 
 
     @Transactional
-    public Queue addToWaitingList(User user) {
+    public Queue addToQueue(User user) {
         //활성 사용자 확인
         long activeCount = queueRepository.countByStatus(TokenStatus.ACTIVE);
 
@@ -58,5 +58,15 @@ public class QueueService {
 
         // WAIT이면 position 붙여야함
         return queue;
+    }
+
+    public Queue getQueueStatus(String token) {
+        // token 대기열 찾기
+        Queue queue = queueRepository.findByToken(token);
+        // 찾은 대기열 상태 wait이 아니면 반환
+        if(queue.getStatus() != TokenStatus.WAIT){ return queue;}
+        // 대기열 번호 계산 (create 보다 작고 상태가 wait 인것) + 1
+        int position = queueRepository.countByIdLessThanAndStatus(queue.getId(), queue.getStatus()) + 1;
+        return null;
     }
 }

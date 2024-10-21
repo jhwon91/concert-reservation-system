@@ -34,4 +34,14 @@ public class QueueRepositoryImpl implements QueueRepository {
         return jpaQueueRepository.countByStatusWithLock(status);
     }
 
+    @Override
+    public Queue findByToken(String token) {
+        return jpaQueueRepository.findByToken(token);
+    }
+
+    @Override
+    public int countByIdLessThanAndStatus(Long id, TokenStatus status) {
+        return jpaQueueRepository.countByIdLessThanAndStatus(id, status);
+    }
+
 }

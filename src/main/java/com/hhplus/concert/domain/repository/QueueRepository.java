@@ -12,4 +12,6 @@ public interface QueueRepository {
     Queue save(Queue queue);
     List<Queue> findByUserId(long id);
     long countByStatus(TokenStatus status);
+    Queue findByToken(String token);
+    int countByIdLessThanAndStatus(Long id, TokenStatus status);
 }

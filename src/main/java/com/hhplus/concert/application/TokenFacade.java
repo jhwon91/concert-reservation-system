@@ -19,10 +19,19 @@ public class TokenFacade {
         this.queueService = queueService;
     }
 
-    /*유저 토큰 발급*/
+    /**
+     * 유저 토큰 발급
+     */
     public Queue issueToken(TokenCriteria tokenCriteria) {
         User user = userService.findUserById(tokenCriteria.user_id());
-        return queueService.addToWaitingList(user);
+        return queueService.addToQueue(user);
+    }
+
+    /**
+     * 대기열 상태 확인
+     */
+    public Queue getTokenStatus(String token) {
+        return queueService.getQueueStatus(token);
     }
 
 }

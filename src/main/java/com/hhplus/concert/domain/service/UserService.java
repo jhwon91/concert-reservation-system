@@ -19,4 +19,20 @@ public class UserService {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("사용자가 존재하지 않습니다."));
     }
+
+    public User chargePoint(User user, long amount) {
+       if(amount <= 0){
+           throw new IllegalArgumentException("충전액이 0보다 작습니다.");
+       }
+       User chargeUser = User.builder()
+               .id(user.getId())
+               .name(user.getName())
+               .point(user.getPoint() + amount)
+               .build();
+       return chargeUser;
+    }
+
+    public User save(User user) {
+        return userRepository.save(user);
+    }
 }

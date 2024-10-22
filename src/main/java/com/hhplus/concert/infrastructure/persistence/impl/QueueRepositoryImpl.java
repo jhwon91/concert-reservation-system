@@ -44,4 +44,9 @@ public class QueueRepositoryImpl implements QueueRepository {
         return jpaQueueRepository.countByIdLessThanAndStatus(id, status);
     }
 
+    @Override
+    public boolean exists(String token) {
+        return jpaQueueRepository.existsByToken(token);
+    }
+
 }

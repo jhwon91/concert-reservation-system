@@ -63,10 +63,22 @@ public class QueueService {
     public Queue getQueueStatus(String token) {
         // token 대기열 찾기
         Queue queue = queueRepository.findByToken(token);
-        // 찾은 대기열 상태 wait이 아니면 반환
+        // 찾은 대기열 상태 wait가 아니면 반환
         if(queue.getStatus() != TokenStatus.WAIT){ return queue;}
         // 대기열 번호 계산 (create 보다 작고 상태가 wait 인것) + 1
         int position = queueRepository.countByIdLessThanAndStatus(queue.getId(), queue.getStatus()) + 1;
         return null;
+    }
+
+    //토큰 검증
+    public void validationToken(String token){
+        if (!queueRepository.exists(token)){
+            throw new IllegalArgumentException("해당 토큰을 찾을수 없습니다.");
+        }
+
+        Queue queue = queueRepository.findByToken(token);
+        if(queue.getStatus() != TokenStatus.ACTIVE){
+            throw new IllegalArgumentException("활성 상태의 토큰이 아닙니다.");
+        }
     }
 }

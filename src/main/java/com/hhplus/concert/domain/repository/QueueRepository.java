@@ -14,4 +14,5 @@ public interface QueueRepository {
     long countByStatus(TokenStatus status);
     Queue findByToken(String token);
     int countByIdLessThanAndStatus(Long id, TokenStatus status);
+    boolean exists (String token);
 }

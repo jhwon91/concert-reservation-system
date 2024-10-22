@@ -15,7 +15,9 @@ public interface JpaQueueRepository extends JpaRepository<Queue, Long> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT COUNT(q) FROM Queue q WHERE q.status = :status")
     long countByStatusWithLock(@Param("status") TokenStatus status);
+
     List<Queue> findByUserId(Long userId);
     Queue findByToken(String Token);
     int countByIdLessThanAndStatus(Long id, TokenStatus status);
+    boolean existsByToken(String token);
 }

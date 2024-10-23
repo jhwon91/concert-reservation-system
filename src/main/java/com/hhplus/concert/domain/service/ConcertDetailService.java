@@ -21,4 +21,14 @@ public class ConcertDetailService {
         return concertDetailRepository.findAvailableConcertDatesByConcertId(concertId, SeatStatus.AVAILABLE);
     }
 
+    public void existConcertDetail(long id){
+        if (!concertDetailRepository.exists(id)){
+            throw new IllegalArgumentException("콘서트를 찾을수 없습니다.");
+        }
+    }
+
+    public ConcertDetails getConcertDetail(long id){
+        return concertDetailRepository.findById(id);
+    }
+
 }

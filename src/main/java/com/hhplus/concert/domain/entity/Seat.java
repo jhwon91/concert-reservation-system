@@ -2,8 +2,10 @@ package com.hhplus.concert.domain.entity;
 
 import com.hhplus.concert.domain.enums.SeatStatus;
 import jakarta.persistence.*;
+import lombok.Getter;
 
 @Entity
+@Getter
 @Table(name = "seat")
 public class Seat {
 

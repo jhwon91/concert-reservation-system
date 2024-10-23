@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface ConcertDetailRepository {
     List<ConcertDetails> findAvailableConcertDatesByConcertId(long concertId, SeatStatus status);
+    boolean exists(long id);
+    ConcertDetails findById(long id);
 }

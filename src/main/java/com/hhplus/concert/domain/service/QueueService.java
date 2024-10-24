@@ -38,7 +38,6 @@ public class QueueService {
                 .findFirst()
                 .orElse(null);
 
-        // WAIT이면 position 붙여야함
         if(resultQueue != null) { return resultQueue; }
 
         Queue queue = Queue.builder()
@@ -51,18 +50,16 @@ public class QueueService {
 
         queue = queueRepository.save(queue);
 
-        // WAIT이면 position 붙여야함
         return queue;
     }
 
-    public Queue getQueueStatus(String token) {
-        // token 대기열 찾기
-        Queue queue = queueRepository.findByToken(token);
-        // 찾은 대기열 상태 wait가 아니면 반환
-        if(queue.getStatus() != TokenStatus.WAIT){ return queue;}
-        // 대기열 번호 계산 (create 보다 작고 상태가 wait 인것) + 1
-        int position = queueRepository.countByIdLessThanAndStatus(queue.getId(), queue.getStatus()) + 1;
-        return null;
+    public int getQueuePosition(Queue queue) {
+        int position = 0;
+        if(queue.getStatus() == TokenStatus.WAIT){
+            // 대기열 번호 계산 (create 보다 작고 상태가 wait 인것) + 1
+            position = queueRepository.countByIdLessThanAndStatus(queue.getId(), queue.getStatus()) + 1;
+        }
+        return position;
     }
 
     public Queue getQueueByToken(String token) {

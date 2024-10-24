@@ -1,6 +1,7 @@
 package com.hhplus.concert.application;
 
-import com.hhplus.concert.application.dto.TokenCriteria;
+import com.hhplus.concert.application.dto.TokenCommand;
+import com.hhplus.concert.application.dto.TokenResult;
 import com.hhplus.concert.domain.entity.User;
 import com.hhplus.concert.domain.entity.Queue;
 import com.hhplus.concert.domain.service.UserService;
@@ -22,16 +23,19 @@ public class TokenFacade {
     /**
      * 유저 토큰 발급
      */
-    public Queue issueToken(TokenCriteria tokenCriteria) {
-        User user = userService.findUserById(tokenCriteria.user_id());
-        return queueService.addToQueue(user);
+    public TokenResult.issueToken issueToken(TokenCommand.issueTokenCommand command) {
+        User user = userService.findUserById(command.userId());
+        Queue queue = queueService.addToQueue(user);
+        int position = queueService.getQueuePosition(queue);
+        return TokenResult.issueToken.from(queue, position);
     }
 
     /**
      * 대기열 상태 확인
      */
-    public Queue getTokenStatus(String token) {
-        return queueService.getQueueStatus(token);
+    public TokenResult.tokenStatus getTokenStatus(TokenCommand.tokenStatusCommand command) {
+        Queue queue = queueService.getQueueByToken(command.token());
+        int position = queueService.getQueuePosition(queue);
+        return TokenResult.tokenStatus.from(queue, position);
     }
-
 }

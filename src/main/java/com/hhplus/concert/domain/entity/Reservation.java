@@ -1,10 +1,14 @@
 package com.hhplus.concert.domain.entity;
 
 import jakarta.persistence.*;
+import lombok.Builder;
+import lombok.Getter;
 
 import java.time.LocalDateTime;
 
 @Entity
+@Builder
+@Getter
 @Table(name = "reservation")
 public class Reservation {
     @Id

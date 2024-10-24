@@ -57,10 +57,10 @@ public class ConcertResult {
             Long concert_id,
             String concert_name,
             Long concert_detail_id,
-            String concert_date,
+            LocalDate concert_date,
             Long seat_id,
             Integer seat_number,
-            String status,
+            SeatStatus status,
             LocalDateTime reservation_at
     ) { }
 }

@@ -21,4 +21,28 @@ public class SeatService {
     public List<Seat> getAvailableSeat(Long concetDetailId, SeatStatus status) {
         return seatRepository.findByConcertDetailIdAndStatus(concetDetailId,status);
     }
+
+    public Seat getSeat(Long seatId) {
+        return seatRepository.findByIdWithLock(seatId);
+    }
+
+    public void checkStatus(Seat seat) {
+        if(seat.getStatus() != SeatStatus.AVAILABLE){
+            throw new IllegalArgumentException("좌석 예약가능한 상태가 아닙니다.");
+        }
+    }
+
+    public Seat changeSeatStatus(Seat seat, SeatStatus status) {
+        return Seat.builder()
+                .id(seat.getId())
+                .concert_detail_id(seat.getConcert_detail_id())
+                .seat_number(seat.getSeat_number())
+                .status(status)
+                .build();
+    }
+
+
+    public Seat save(Seat seat){
+        return seatRepository.save(seat);
+    }
 }

@@ -57,8 +57,9 @@ public class ConcertController {
      */
     @PostMapping("/reservations")
     public ReservationResponseDTO reserveSeat(
-            @RequestBody ReservationRequestDTO request,
-            @RequestHeader("Authorization") String token) {
+            @RequestHeader("Authorization") String token,
+            @RequestBody ReservationRequestDTO request
+            ) {
 
         return new ReservationResponseDTO(
                 1L,
@@ -67,7 +68,7 @@ public class ConcertController {
                 1L,
                 "콘서트1",
                 request.concert_detail_id(),
-                request.concert_date(),
+                null,
                 request.seat_id(),
                 1,
                 "TEMPORARY_ALLOCATED",

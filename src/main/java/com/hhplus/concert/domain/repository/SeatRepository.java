@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface SeatRepository {
     List<Seat> findByConcertDetailIdAndStatus(Long concertDetailId, SeatStatus status);
+    Seat findByIdWithLock(long seatId);
+    Seat save(Seat seat);
 }

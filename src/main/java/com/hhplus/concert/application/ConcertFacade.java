@@ -1,14 +1,11 @@
 package com.hhplus.concert.application;
 
 import com.hhplus.concert.application.dto.ConcertResult;
-import com.hhplus.concert.domain.entity.Concert;
-import com.hhplus.concert.domain.entity.ConcertDetails;
+import com.hhplus.concert.domain.entity.*;
 import com.hhplus.concert.domain.enums.SeatStatus;
-import com.hhplus.concert.domain.service.ConcertDetailService;
-import com.hhplus.concert.domain.service.ConcertService;
-import com.hhplus.concert.domain.service.QueueService;
-import com.hhplus.concert.domain.service.SeatService;
+import com.hhplus.concert.domain.service.*;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,12 +16,16 @@ public class ConcertFacade {
     private final ConcertService concertService;
     private final QueueService queueService;
     private final SeatService seatService;
+    private final UserService userService;
+    private final ReservationService reservationService;
 
-    public ConcertFacade(ConcertDetailService concertDetailService, ConcertService concertService, QueueService queueService, SeatService seatService) {
+    public ConcertFacade(ConcertDetailService concertDetailService, ConcertService concertService, QueueService queueService, SeatService seatService, UserService userService, ReservationService reservationService) {
         this.concertDetailService = concertDetailService;
         this.concertService = concertService;
         this.queueService = queueService;
         this.seatService = seatService;
+        this.userService = userService;
+        this.reservationService = reservationService;
     }
 
     /**
@@ -52,7 +53,7 @@ public class ConcertFacade {
     }
 
     /**
-     * 4. 특정 날짜의 예약 가능한 좌석 조회
+     *  특정 날짜의 예약 가능한 좌석 조회
      */
     public ConcertResult.ConcertAvailableSeats getAvailableSeats(String token, Long concertId, Long concertDetailId) {
         queueService.validationToken(token);
@@ -79,10 +80,42 @@ public class ConcertFacade {
     }
 
     /**
-     * 5. 좌석 예약
+     *  좌석 예약
      */
-    public ConcertResult.ConcertReservation reserveSeat(){
+    @Transactional
+    public ConcertResult.ConcertReservation reserveSeat(
+            String token,
+            Long userId,
+            Long concertDetailId,
+            Long seatId
+            ){
+        queueService.validationToken(token);
+        User user = userService.findUserById(userId);
 
-        return null;
+        ConcertDetails concertDetails = concertDetailService.getConcertDetail(concertDetailId);
+        Concert concert = concertService.getConcert(concertDetails.getConcert_id());
+
+        Seat seat = seatService.getSeat(seatId);
+        seatService.checkStatus(seat);
+
+        Reservation reservation = reservationService.enterReservation(user,concertDetails,seat);
+        Reservation saveReservation = reservationService.save(reservation);
+
+        Seat changeSeat = seatService.changeSeatStatus(seat,SeatStatus.TEMPORARY_ALLOCATED);
+        Seat updateSeat = seatService.save(changeSeat);
+
+        return ConcertResult.ConcertReservation.builder()
+                .reservation_id(saveReservation.getId())
+                .user_id(saveReservation.getUser_id())
+                .user_name(user.getName())
+                .concert_id(concertDetails.getConcert_id())
+                .concert_name(concert.getTitle())
+                .concert_detail_id(concertDetails.getId())
+                .concert_date(concertDetails.getConcert_date())
+                .seat_id(updateSeat.getId())
+                .seat_number(updateSeat.getSeat_number())
+                .status(updateSeat.getStatus())
+                .reservation_at(saveReservation.getReservation_at())
+                .build();
     }
 }

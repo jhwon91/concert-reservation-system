@@ -6,6 +6,8 @@ import com.hhplus.concert.domain.repository.QueueRepository;
 import com.hhplus.concert.infrastructure.persistence.JpaQueueRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -20,6 +22,7 @@ public class QueueRepositoryImpl implements QueueRepository {
     }
 
     @Override
+    @Transactional
     public Queue save(Queue queue) {
         return jpaQueueRepository.save(queue);
     }

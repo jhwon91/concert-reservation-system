@@ -2,10 +2,12 @@ package com.hhplus.concert.domain.entity;
 
 import com.hhplus.concert.domain.enums.SeatStatus;
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 
 @Entity
 @Getter
+@Builder
 @Table(name = "seat")
 public class Seat {
 
@@ -17,4 +19,5 @@ public class Seat {
 
     @Enumerated(EnumType.STRING)
     private SeatStatus status;
+
 }

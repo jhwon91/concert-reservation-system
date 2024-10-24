@@ -1,8 +1,10 @@
 package com.hhplus.concert.domain.entity;
 
 import jakarta.persistence.*;
+import lombok.Builder;
 
 @Entity
+@Builder
 @Table(name = "payment")
 public class Payment {
     @Id

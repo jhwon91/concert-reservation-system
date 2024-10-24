@@ -2,6 +2,7 @@ package com.hhplus.concert.domain.entity;
 
 import com.hhplus.concert.domain.enums.TokenStatus;
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -12,6 +13,7 @@ import java.util.UUID;
 @Table(name= "queue")
 @Getter
 @Setter
+@Builder
 public class Queue {
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)

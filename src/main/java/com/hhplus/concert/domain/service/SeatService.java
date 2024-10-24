@@ -26,9 +26,15 @@ public class SeatService {
         return seatRepository.findByIdWithLock(seatId);
     }
 
-    public void checkStatus(Seat seat) {
+    public void checkAvailableStatus(Seat seat) {
         if(seat.getStatus() != SeatStatus.AVAILABLE){
             throw new IllegalArgumentException("좌석 예약가능한 상태가 아닙니다.");
+        }
+    }
+
+    public void checkTemporaryStatus(Seat seat) {
+        if(seat.getStatus() != SeatStatus.TEMPORARY_ALLOCATED){
+            throw new IllegalArgumentException("좌석 결제가능한 상태가 아닙니다.");
         }
     }
 

@@ -79,7 +79,7 @@ public class MockController {
                 1L,
                 "콘서트1",
                 request.concert_detail_id(),
-                request.concert_date(),
+                null,
                 request.seat_id(),
                 1,
                 "TEMPORARY_ALLOCATED",

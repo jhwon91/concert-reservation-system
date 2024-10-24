@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -40,19 +41,13 @@ public class QueueService {
         // WAIT이면 position 붙여야함
         if(resultQueue != null) { return resultQueue; }
 
-        Queue queue = new Queue();
-        queue.setUserId(user.getId());
-        queue.setToken(UUID.randomUUID());
-        queue.setEnteredAt(LocalDateTime.now());
-        queue.setLastRequestedAt(LocalDateTime.now());
-
-        if (activeCount < MAX_ACTIVE_USERS) {
-            //ACTIVE
-            queue.setStatus(TokenStatus.ACTIVE);
-        } else {
-            //WAIT
-            queue.setStatus(TokenStatus.WAIT);
-        }
+        Queue queue = Queue.builder()
+                .userId(user.getId())
+                .token(UUID.randomUUID())
+                .enteredAt(LocalDateTime.now())
+                .lastRequestedAt(LocalDateTime.now())
+                .status(activeCount < MAX_ACTIVE_USERS ? TokenStatus.ACTIVE : TokenStatus.WAIT)
+                .build();
 
         queue = queueRepository.save(queue);
 
@@ -70,6 +65,18 @@ public class QueueService {
         return null;
     }
 
+    public Queue getQueueByToken(String token) {
+        // token 대기열 찾기
+        Queue queue = queueRepository.findByToken(token);
+        return queue;
+    }
+
+    public void validationUser(Queue queue, User user) {
+        if(queue.getUserId() != user.getId()){
+            throw new IllegalArgumentException("해당 토큰의 유저가 아닙니다.");
+        }
+    }
+
     //토큰 검증
     public void validationToken(String token){
         if (!queueRepository.exists(token)){
@@ -80,5 +87,21 @@ public class QueueService {
         if(queue.getStatus() != TokenStatus.ACTIVE){
             throw new IllegalArgumentException("활성 상태의 토큰이 아닙니다.");
         }
+    }
+
+    public Queue changeQueueStatus(Queue queue, TokenStatus status, Optional<LocalDateTime> expiredAtOpt) {
+        return Queue.builder()
+                .id(queue.getId())
+                .token(queue.getToken())
+                .userId(queue.getUserId())
+                .status(status)
+                .enteredAt(queue.getEnteredAt())
+                .lastRequestedAt(queue.getLastRequestedAt())
+                .expiredAt(status == TokenStatus.EXPIRED ? expiredAtOpt.orElse(LocalDateTime.now()) : null)
+                .build();
+    }
+
+    public Queue save(Queue queue){
+        return queueRepository.save(queue);
     }
 }

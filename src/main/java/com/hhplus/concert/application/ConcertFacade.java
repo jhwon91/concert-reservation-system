@@ -83,12 +83,7 @@ public class ConcertFacade {
      *  좌석 예약
      */
     @Transactional
-    public ConcertResult.ConcertReservation reserveSeat(
-            String token,
-            Long userId,
-            Long concertDetailId,
-            Long seatId
-            ){
+    public ConcertResult.ConcertReservation reserveSeat(String token, Long userId, Long concertDetailId,  Long seatId){
         queueService.validationToken(token);
         User user = userService.findUserById(userId);
 
@@ -96,7 +91,7 @@ public class ConcertFacade {
         Concert concert = concertService.getConcert(concertDetails.getConcert_id());
 
         Seat seat = seatService.getSeat(seatId);
-        seatService.checkStatus(seat);
+        seatService.checkAvailableStatus(seat);
 
         Reservation reservation = reservationService.enterReservation(user,concertDetails,seat);
         Reservation saveReservation = reservationService.save(reservation);

@@ -1,6 +1,7 @@
 package com.hhplus.concert.interfaces.controller;
 
 import com.hhplus.concert.application.ConcertFacade;
+import com.hhplus.concert.application.dto.ConcertCommand;
 import com.hhplus.concert.interfaces.dto.*;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,57 +23,31 @@ public class ConcertController {
      * 3. 예약 가능한 날짜 조회
      */
     @GetMapping("/concert/{concertId}/dates")
-    public ConcertDatesResponseDTO getAvailableConcertDates(
-            @PathVariable("concert_id") Long concertId,
-            @RequestHeader("Authorization") String token) {
-
-        List<ConcertDetail> concertDetails = Arrays.asList(
-                new ConcertDetail(1L, "2024-10-01"),
-                new ConcertDetail(2L, "2024-10-02")
+    public ConcertDTO.ConcertDatesResponseDTO getAvailableConcertDates(ConcertDTO.ConcertDatesRequestDTO request) {
+        return  ConcertDTO.ConcertDatesResponseDTO.from(
+                concertFacade.getAvailableConcertDates(request.toCommand())
         );
-
-        return new ConcertDatesResponseDTO(concertId, "콘서트1", concertDetails);
     }
 
     /**
      * 4. 특정 날짜의 예약 가능한 좌석 조회
      */
     @GetMapping("/reservations/seats")
-    public SeatsResponseDTO getAvailableSeats(
-            @RequestHeader("Authorization") String token,
-            @RequestParam("concert_id") Long concertId,
-            @RequestParam("concert_detail_id") Long concertDetailId
-            ) {
-
-        List<SeatInfo> seats = Arrays.asList(
-                new SeatInfo(1L, 1, "AVAILABLE"),
-                new SeatInfo(2L, 2, "UNAVAILABLE")
+    public ConcertDTO.SeatResponseDTO getAvailableSeats(ConcertDTO.ConcertSeatsRequestDTO request) {
+        return ConcertDTO.SeatResponseDTO.from(
+                concertFacade.getAvailableSeats(request.toCommand())
         );
-
-        return new SeatsResponseDTO(1L, "콘서트1", concertDetailId, null, 50, seats);
     }
 
     /**
      * 5. 좌석 예약
      */
     @PostMapping("/reservations")
-    public ReservationResponseDTO reserveSeat(
+    public ConcertDTO.ReservationResponseDTO reserveSeat (
             @RequestHeader("Authorization") String token,
-            @RequestBody ReservationRequestDTO request
-            ) {
-
-        return new ReservationResponseDTO(
-                1L,
-                request.user_id(),
-                "유저1",
-                1L,
-                "콘서트1",
-                request.concert_detail_id(),
-                null,
-                request.seat_id(),
-                1,
-                "TEMPORARY_ALLOCATED",
-                LocalDateTime.now()
+            @RequestBody ConcertDTO.ReservationRequestDTO request) {
+        return ConcertDTO.ReservationResponseDTO.from(
+                concertFacade.reserveSeat(request.toCommand(token))
         );
     }
 }

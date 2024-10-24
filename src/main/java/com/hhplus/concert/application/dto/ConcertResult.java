@@ -1,43 +1,72 @@
 package com.hhplus.concert.application.dto;
 
+import com.hhplus.concert.domain.entity.*;
 import com.hhplus.concert.domain.enums.SeatStatus;
-import com.hhplus.concert.interfaces.dto.SeatInfo;
 import lombok.Builder;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ConcertResult {
 
     @Builder
-    public record Concert (
+    public record ConcertDTO (
             Long concert_id,
             String title
     ) { }
 
     @Builder
-    public record ConcertDetails (
+    public record ConcertDetailDTO (
             Long concert_detail_id,
             Long concert_id,
             Long max_seat,
             Long price,
             LocalDate concert_date
-    ) { }
+    ) {
+        public static ConcertDetailDTO from(ConcertDetails concertDetails) {
+            return ConcertDetailDTO.builder()
+                    .concert_detail_id(concertDetails.getId())
+                    .concert_id(concertDetails.getConcert_id())
+                    .max_seat(concertDetails.getMax_seat())
+                    .price(concertDetails.getPrice())
+                    .concert_date(concertDetails.getConcert_date())
+                    .build();
+        }
+    }
 
     @Builder
-    public record Seat(
+    public record SeatDTO(
             Long seat_id,
             Integer seat_number,
             SeatStatus status
-    ) {}
+    ) {
+        public static SeatDTO from (Seat seat) {
+            return SeatDTO.builder()
+                    .seat_id(seat.getId())
+                    .seat_number(seat.getSeat_number())
+                    .status(seat.getStatus())
+                    .build();
+        }
+    }
 
     @Builder
     public record ConcertAvailableDates (
             Long concert_id,
             String concert_title,
-            List<ConcertDetails> concert_detail
-    ) { }
+            List<ConcertDetailDTO> concert_detail
+    ) {
+        public static ConcertAvailableDates from(Concert concert, List<ConcertDetails> concertDetails) {
+            return ConcertAvailableDates.builder()
+                    .concert_id(concert.getId())
+                    .concert_title(concert.getTitle())
+                    .concert_detail(concertDetails.stream()
+                            .map(ConcertDetailDTO::from)
+                            .collect(Collectors.toList()))
+                    .build();
+        }
+    }
 
     @Builder
     public record ConcertAvailableSeats (
@@ -46,8 +75,21 @@ public class ConcertResult {
             Long concert_detail_id,
             LocalDate concert_date,
             Long max_seat,
-            List<Seat> seats
-    ) { }
+            List<SeatDTO> seats
+    ) {
+        public static ConcertAvailableSeats from(Concert concert, ConcertDetails concertDetails, List<Seat> seats){
+            return ConcertResult.ConcertAvailableSeats.builder()
+                    .concert_id(concert.getId())
+                    .concert_title(concert.getTitle())
+                    .concert_detail_id(concertDetails.getId())
+                    .concert_date(concertDetails.getConcert_date())
+                    .max_seat(concertDetails.getMax_seat())
+                    .seats(seats.stream()
+                            .map(SeatDTO::from)
+                            .collect(Collectors.toList()))
+                    .build();
+        }
+    }
 
     @Builder
     public record ConcertReservation (
@@ -62,5 +104,27 @@ public class ConcertResult {
             Integer seat_number,
             SeatStatus status,
             LocalDateTime reservation_at
-    ) { }
+    ) {
+        public static ConcertReservation from(
+                Reservation reservation,
+                User user,
+                ConcertDetails concertDetails,
+                Concert concert,
+                Seat seat
+        ) {
+            return ConcertReservation.builder()
+                    .reservation_id(reservation.getId())
+                    .user_id(reservation.getUser_id())
+                    .user_name(user.getName())
+                    .concert_id(concertDetails.getConcert_id())
+                    .concert_name(concert.getTitle())
+                    .concert_detail_id(concertDetails.getId())
+                    .concert_date(concertDetails.getConcert_date())
+                    .seat_id(seat.getId())
+                    .seat_number(seat.getSeat_number())
+                    .status(seat.getStatus())
+                    .reservation_at(reservation.getReservation_at())
+                    .build();
+        }
+    }
 }

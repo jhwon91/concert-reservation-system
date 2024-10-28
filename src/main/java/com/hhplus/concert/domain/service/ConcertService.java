@@ -2,6 +2,9 @@ package com.hhplus.concert.domain.service;
 
 import com.hhplus.concert.domain.entity.Concert;
 import com.hhplus.concert.domain.repository.ConcertRepository;
+import com.hhplus.concert.domain.support.error.CoreException;
+import com.hhplus.concert.domain.support.error.ErrorType;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,11 +21,12 @@ public class ConcertService {
 
     public void existConcert(long id){
         if (!concertRepository.exists(id)){
-            throw new IllegalArgumentException("콘서트를 찾을수 없습니다.");
+            throw new CoreException(ErrorType.CONCERT_NOT_FOUND, id);
         }
     }
 
     public Concert getConcert(long id){
-        return concertRepository.findById(id);
+        return concertRepository.findById(id)
+                .orElseThrow(() -> new CoreException(ErrorType.CONCERT_NOT_FOUND, id));
     }
 }

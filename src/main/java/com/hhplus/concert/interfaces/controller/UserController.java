@@ -11,7 +11,7 @@ public class UserController {
     /**
      * 6. 사용자 잔액 조회
      */
-    @PostMapping("/{userId}")
+    @GetMapping("/{userId}")
     public UserBalanceResponseDTO pointSearch(@PathVariable long userId) {
         return null;
     }

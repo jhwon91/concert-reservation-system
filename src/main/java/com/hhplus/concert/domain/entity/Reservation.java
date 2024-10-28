@@ -14,9 +14,18 @@ public class Reservation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private Long concert_detail_id;
-    private Long user_id;
-    private Long seat_id;
+
+    @Column(name = "concert_detail_id")
+    private Long concertDetailId;
+
+    @Column(name = "user_id")
+    private Long userId;
+
+    @Column(name = "seat_id")
+    private Long seatId;
+
     private String status;
-    private LocalDateTime reservation_at;
+
+    @Column(name = "reservation_at")
+    private LocalDateTime reservationAt;
 }

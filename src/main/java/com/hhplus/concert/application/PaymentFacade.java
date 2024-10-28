@@ -5,11 +5,13 @@ import com.hhplus.concert.domain.entity.*;
 import com.hhplus.concert.domain.enums.SeatStatus;
 import com.hhplus.concert.domain.enums.TokenStatus;
 import com.hhplus.concert.domain.service.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class PaymentFacade {
@@ -20,6 +22,7 @@ public class PaymentFacade {
     private final ConcertDetailService concertDetailService;
     private final PaymentService paymentService;
 
+    @Autowired
     public PaymentFacade(QueueService queueService, UserService userService, SeatService seatService, ReservationService reservationService, ConcertDetailService concertDetailService, PaymentService paymentService) {
         this.queueService = queueService;
         this.userService = userService;
@@ -41,7 +44,7 @@ public class PaymentFacade {
      * 9. 다음 대기자 활성 처리?
      */
     @Transactional
-    public PaymentResult.Payment paymentConcert(String token, Long userId, Long reservationId){
+    public PaymentResult.Payment paymentConcert(UUID token, Long userId, Long reservationId){
         queueService.validationToken(token);
 
         Queue queue = queueService.getQueueByToken(token);
@@ -49,8 +52,8 @@ public class PaymentFacade {
         queueService.validationUser(queue, user);
 
         Reservation reservation = reservationService.getReservation(reservationId);
-        ConcertDetails concertDetails = concertDetailService.getConcertDetail(reservation.getConcert_detail_id());
-        Seat seat = seatService.getSeat(reservation.getSeat_id());
+        ConcertDetails concertDetails = concertDetailService.getConcertDetail(reservation.getConcertDetailId());
+        Seat seat = seatService.getSeat(reservation.getSeatId());
 
         //임시 배정 좌석 확인(예약시간기준으로 5분 지났는지 확인)
         seatService.checkTemporaryStatus(seat);

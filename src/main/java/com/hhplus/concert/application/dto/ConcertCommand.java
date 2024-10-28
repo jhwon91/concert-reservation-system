@@ -2,11 +2,13 @@ package com.hhplus.concert.application.dto;
 
 import lombok.Builder;
 
+import java.util.UUID;
+
 public class ConcertCommand {
 
     @Builder
     public record availableConcertDates(
-            String token,
+            UUID token,
             Long concertId
     ){
 
@@ -14,14 +16,14 @@ public class ConcertCommand {
 
     @Builder
     public record availableConcertSeats(
-            String token,
+            UUID token,
             Long concertId,
             Long concertDetailId
     ){}
 
     @Builder
     public record reserveSeat(
-            String token,
+            UUID token,
             Long userId,
             Long concertDetailId,
             Long seatId

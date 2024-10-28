@@ -7,6 +7,8 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public class ConcertRepositoryImpl implements ConcertRepository {
     private final JpaConcertRepository jpaConcertRepository;
@@ -17,9 +19,8 @@ public class ConcertRepositoryImpl implements ConcertRepository {
     }
 
     @Override
-    public Concert findById(long id) {
-        return jpaConcertRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("콘서트가 존재하지 않습니다."));
+    public Optional<Concert> findById(long id) {
+        return jpaConcertRepository.findById(id);
     }
 
     @Override

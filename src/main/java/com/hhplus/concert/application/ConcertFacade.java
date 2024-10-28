@@ -5,6 +5,7 @@ import com.hhplus.concert.application.dto.ConcertResult;
 import com.hhplus.concert.domain.entity.*;
 import com.hhplus.concert.domain.enums.SeatStatus;
 import com.hhplus.concert.domain.service.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +20,7 @@ public class ConcertFacade {
     private final UserService userService;
     private final ReservationService reservationService;
 
+    @Autowired
     public ConcertFacade(ConcertDetailService concertDetailService, ConcertService concertService, QueueService queueService, SeatService seatService, UserService userService, ReservationService reservationService) {
         this.concertDetailService = concertDetailService;
         this.concertService = concertService;
@@ -60,7 +62,7 @@ public class ConcertFacade {
         User user = userService.findUserById(command.userId());
 
         ConcertDetails concertDetails = concertDetailService.getConcertDetail(command.concertDetailId());
-        Concert concert = concertService.getConcert(concertDetails.getConcert_id());
+        Concert concert = concertService.getConcert(concertDetails.getConcertId());
 
         Seat seat = seatService.getSeat(command.seatId());
         seatService.checkAvailableStatus(seat);

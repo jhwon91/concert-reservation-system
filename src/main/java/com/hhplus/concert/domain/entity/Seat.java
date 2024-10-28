@@ -14,7 +14,10 @@ public class Seat {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private Long concert_detail_id;
+
+    @Column(name = "concert_detail_id")
+    private Long concertDetailId;
+
     private int seat_number;
 
     @Enumerated(EnumType.STRING)

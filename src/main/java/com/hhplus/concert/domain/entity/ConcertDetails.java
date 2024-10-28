@@ -13,8 +13,15 @@ public class ConcertDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private Long concert_id;
-    private Long max_seat;
+
+    @Column(name = "concert_id")
+    private Long concertId;
+
+    @Column(name = "max_seat")
+    private Long maxSeat;
+
     private Long price;
-    private LocalDate concert_date;
+
+    @Column(name = "concert_date")
+    private LocalDate concertDate;
 }

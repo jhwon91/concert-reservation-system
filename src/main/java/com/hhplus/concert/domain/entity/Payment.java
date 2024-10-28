@@ -10,7 +10,12 @@ public class Payment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private Long user_id;
+
+    @Column(name = "user_id")
+    private Long userId;
+
+    @Column(name = "reservationId")
     private Long reservation_id;
+
     private Long amount;
 }

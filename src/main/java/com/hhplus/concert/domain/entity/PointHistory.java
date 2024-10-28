@@ -10,7 +10,10 @@ public class PointHistory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private Long user_id;
+
+    @Column(name = "user_id")
+    private Long userId;
+
     private Long amount;
 
     @Enumerated(EnumType.STRING)

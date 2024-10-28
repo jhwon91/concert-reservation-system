@@ -2,6 +2,7 @@ package com.hhplus.concert.interfaces.controller;
 
 import com.hhplus.concert.application.TokenFacade;
 import com.hhplus.concert.interfaces.dto.TokenDTO;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -12,6 +13,7 @@ public class TokenController {
 
     private final TokenFacade tokenFacade;
 
+    @Autowired
     public TokenController(TokenFacade tokenFacade) {
         this.tokenFacade = tokenFacade;
     }

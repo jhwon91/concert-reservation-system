@@ -9,6 +9,11 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface JpaConcertDetailRepository extends JpaRepository<ConcertDetails, Long> {
-    @Query("SELECT DISTINCT cd FROM ConcertDetail cd JOIN Seat s ON cd.id = s.concertDetailId WHERE cd.concertId = :concertId AND s.status = :status")
+    @Query("SELECT " +
+                "DISTINCT cd " +
+            "FROM ConcertDetails cd " +
+            "JOIN Seat s ON cd.id = s.concertDetailId " +
+            "WHERE cd.concertId = :concertId " +
+            "AND s.status = :status")
     List<ConcertDetails> findAvailableConcertDatesByConcertId(@Param("concertId") Long concertId, @Param("status") SeatStatus status);
 }

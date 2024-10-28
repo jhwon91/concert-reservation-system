@@ -3,6 +3,8 @@ package com.hhplus.concert.domain.service;
 import com.hhplus.concert.domain.entity.Seat;
 import com.hhplus.concert.domain.enums.SeatStatus;
 import com.hhplus.concert.domain.repository.SeatRepository;
+import com.hhplus.concert.domain.support.error.CoreException;
+import com.hhplus.concert.domain.support.error.ErrorType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -28,20 +30,20 @@ public class SeatService {
 
     public void checkAvailableStatus(Seat seat) {
         if(seat.getStatus() != SeatStatus.AVAILABLE){
-            throw new IllegalArgumentException("좌석 예약가능한 상태가 아닙니다.");
+            throw new CoreException(ErrorType.SEAT_NOT_RESERVABLE,seat.getStatus());
         }
     }
 
     public void checkTemporaryStatus(Seat seat) {
         if(seat.getStatus() != SeatStatus.TEMPORARY_ALLOCATED){
-            throw new IllegalArgumentException("좌석 결제가능한 상태가 아닙니다.");
+            throw new CoreException(ErrorType.SEAT_NOT_PAYABLE,seat.getStatus());
         }
     }
 
     public Seat changeSeatStatus(Seat seat, SeatStatus status) {
         return Seat.builder()
                 .id(seat.getId())
-                .concert_detail_id(seat.getConcert_detail_id())
+                .concertDetailId(seat.getConcertDetailId())
                 .seat_number(seat.getSeat_number())
                 .status(status)
                 .build();

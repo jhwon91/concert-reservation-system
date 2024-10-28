@@ -8,6 +8,7 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class ConcertDetailRepositoryImpl implements ConcertDetailRepository {
@@ -28,9 +29,8 @@ public class ConcertDetailRepositoryImpl implements ConcertDetailRepository {
     }
 
     @Override
-    public ConcertDetails findById(long id) {
-        return jpaConcertDetailRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("콘서트가 존재하지 않습니다."));
+    public Optional<ConcertDetails> findById(long id) {
+        return jpaConcertDetailRepository.findById(id);
     }
 
 }

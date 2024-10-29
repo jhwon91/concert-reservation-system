@@ -1,12 +1,14 @@
 package com.hhplus.concert.domain.entity;
 
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDate;
 
 @Entity
 @Getter
+@Builder
 @Table(name = "concert_detail")
 public class ConcertDetails {
 

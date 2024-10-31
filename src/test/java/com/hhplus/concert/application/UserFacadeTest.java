@@ -49,7 +49,6 @@ class UserFacadeTest {
     @Test
     void 동시에_포인트를_충전할_경우_하나이상_성공해야함() throws InterruptedException {
         // given
-
         int threadCount = 10;
         ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
         CountDownLatch latch = new CountDownLatch(threadCount);
@@ -76,8 +75,8 @@ class UserFacadeTest {
         // then
         User resultUser = userService.findUserById(saveuser.getId());
 
-        assertEquals(1,successCount.get());// 성공은 1번만 되어야 함
-        assertEquals(threadCount - 1,failCount.get());// 나머지는 실패해야 함
+        assertEquals(1,successCount.get());
+        assertEquals(threadCount - 1,failCount.get());
         assertEquals(1100L,resultUser.getPoint());
     }
 

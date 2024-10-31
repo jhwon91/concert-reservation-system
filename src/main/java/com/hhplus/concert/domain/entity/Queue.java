@@ -4,9 +4,7 @@ import com.hhplus.concert.domain.enums.TokenStatus;
 import com.hhplus.concert.domain.support.error.CoreException;
 import com.hhplus.concert.domain.support.error.ErrorType;
 import jakarta.persistence.*;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -15,6 +13,8 @@ import java.util.UUID;
 @Table(name= "queue")
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
 public class Queue {
     @Id

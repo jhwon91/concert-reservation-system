@@ -29,4 +29,8 @@ public class ConcertService {
         return concertRepository.findById(id)
                 .orElseThrow(() -> new CoreException(ErrorType.CONCERT_NOT_FOUND, id));
     }
+
+    public Concert save(Concert concert) {
+        return concertRepository.save(concert);
+    }
 }

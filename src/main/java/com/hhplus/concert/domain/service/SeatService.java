@@ -7,6 +7,7 @@ import com.hhplus.concert.domain.support.error.CoreException;
 import com.hhplus.concert.domain.support.error.ErrorType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -24,6 +25,7 @@ public class SeatService {
         return seatRepository.findByConcertDetailIdAndStatus(concetDetailId,status);
     }
 
+    @Transactional
     public Seat findAvailableSeat(Long seatId) {
         Seat seat = getSeat(seatId);
         checkAvailableStatus(seat);
@@ -32,7 +34,8 @@ public class SeatService {
     }
 
     public Seat getSeat(Long seatId) {
-        return seatRepository.findByIdWithLock(seatId);
+        return seatRepository.findById(seatId)
+                .orElseThrow(()-> new CoreException(ErrorType.SEAT_NOT_FOUND, seatId));
     }
 
     public void checkAvailableStatus(Seat seat) {
@@ -43,10 +46,10 @@ public class SeatService {
         seat.checkTemporaryStatus();
     }
 
+    @Transactional
     public void changeSeatStatus(Seat seat, SeatStatus status) {
         seat.changeStatus(status);
     }
-
 
     public Seat save(Seat seat){
         return seatRepository.save(seat);

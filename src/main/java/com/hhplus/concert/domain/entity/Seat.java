@@ -4,12 +4,16 @@ import com.hhplus.concert.domain.enums.SeatStatus;
 import com.hhplus.concert.domain.support.error.CoreException;
 import com.hhplus.concert.domain.support.error.ErrorType;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "seat")
 public class Seat {
 
@@ -20,7 +24,8 @@ public class Seat {
     @Column(name = "concert_detail_id")
     private Long concertDetailId;
 
-    private int seat_number;
+    @Column(name = "seat_number")
+    private int seatNumber;
 
     @Enumerated(EnumType.STRING)
     private SeatStatus status;

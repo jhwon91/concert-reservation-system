@@ -7,4 +7,5 @@ import java.util.Optional;
 public interface ConcertRepository {
     Optional<Concert> findById(long id);
     boolean exists(long id);
+    Concert save(Concert concert);
 }

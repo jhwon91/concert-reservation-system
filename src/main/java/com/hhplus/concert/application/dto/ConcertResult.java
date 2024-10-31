@@ -45,7 +45,7 @@ public class ConcertResult {
         public static SeatDTO from (Seat seat) {
             return SeatDTO.builder()
                     .seat_id(seat.getId())
-                    .seat_number(seat.getSeat_number())
+                    .seat_number(seat.getSeatNumber())
                     .status(seat.getStatus())
                     .build();
         }
@@ -121,7 +121,7 @@ public class ConcertResult {
                     .concert_detail_id(concertDetails.getId())
                     .concert_date(concertDetails.getConcertDate())
                     .seat_id(seat.getId())
-                    .seat_number(seat.getSeat_number())
+                    .seat_number(seat.getSeatNumber())
                     .status(seat.getStatus())
                     .reservation_at(reservation.getReservationAt())
                     .build();

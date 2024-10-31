@@ -1,14 +1,18 @@
 package com.hhplus.concert.domain.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
 @Entity
 @Getter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "concert_detail")
 public class ConcertDetails {
 

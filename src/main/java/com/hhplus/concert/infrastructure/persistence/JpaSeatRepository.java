@@ -11,8 +11,5 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface JpaSeatRepository extends JpaRepository<Seat, Long> {
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query("SELECT cs FROM Seat cs WHERE cs.id = :seatId")
-    Seat findByIdWithLock(@Param("seatId") Long seatId);
     List<Seat> findByConcertDetailIdAndStatus(Long concertDetailId, SeatStatus status);
 }

@@ -12,6 +12,7 @@ public enum ErrorType {
     CONCERT_NOT_FOUND(ErrorCode.NOT_FOUND, "콘서트 일정을 찾을 수 없습니다.",LogLevel.WARN),
     TOKEN_NOT_FOUND(ErrorCode.NOT_FOUND, "해당 토큰을 찾을 수 없습니다.", LogLevel.WARN),
     RESERVATION_NOT_FOUND(ErrorCode.NOT_FOUND, "예약이 존재하지 않습니다.", LogLevel.WARN),
+    SEAT_NOT_FOUND(ErrorCode.NOT_FOUND, "좌석이 존재하지 않습니다.", LogLevel.WARN),
 
     TOKEN_NOT_ACTIVE(ErrorCode.UNAUTHORIZED, "활성 상태의 토큰이 아닙니다.", LogLevel.INFO),
     USER_NOT_MATCHED_TOKEN(ErrorCode.UNAUTHORIZED, "해당 토큰의 유저가 아닙니다.", LogLevel.INFO),

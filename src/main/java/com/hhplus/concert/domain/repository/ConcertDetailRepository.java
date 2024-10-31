@@ -10,4 +10,5 @@ public interface ConcertDetailRepository {
     List<ConcertDetails> findAvailableConcertDatesByConcertId(long concertId, SeatStatus status);
     boolean exists(long id);
     Optional<ConcertDetails> findById(long id);
+    ConcertDetails save(ConcertDetails concertDetails);
 }

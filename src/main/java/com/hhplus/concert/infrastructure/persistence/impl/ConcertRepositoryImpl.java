@@ -6,6 +6,7 @@ import com.hhplus.concert.infrastructure.persistence.JpaConcertRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -26,5 +27,11 @@ public class ConcertRepositoryImpl implements ConcertRepository {
     @Override
     public boolean exists(long id) {
         return jpaConcertRepository.existsById(id);
+    }
+
+    @Override
+    @Transactional
+    public Concert save(Concert concert) {
+        return jpaConcertRepository.save(concert);
     }
 }

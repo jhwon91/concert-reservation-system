@@ -34,4 +34,8 @@ public class ConcertDetailService {
                 .orElseThrow(() -> new CoreException(ErrorType.CONCERT_DETAIL_NOT_FOUND, id));
     }
 
+    public ConcertDetails save(ConcertDetails concertDetails){
+        return concertDetailRepository.save(concertDetails);
+    }
+
 }

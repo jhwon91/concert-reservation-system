@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 public class QueueRepositoryImpl implements QueueRepository {
@@ -38,7 +39,7 @@ public class QueueRepositoryImpl implements QueueRepository {
     }
 
     @Override
-    public Queue findByToken(String token) {
+    public Optional<Queue> findByToken(UUID token) {
         return jpaQueueRepository.findByToken(token);
     }
 
@@ -48,7 +49,7 @@ public class QueueRepositoryImpl implements QueueRepository {
     }
 
     @Override
-    public boolean exists(String token) {
+    public boolean exists(UUID token) {
         return jpaQueueRepository.existsByToken(token);
     }
 

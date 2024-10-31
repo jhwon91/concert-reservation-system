@@ -28,10 +28,10 @@ public class ConcertResult {
         public static ConcertDetailDTO from(ConcertDetails concertDetails) {
             return ConcertDetailDTO.builder()
                     .concert_detail_id(concertDetails.getId())
-                    .concert_id(concertDetails.getConcert_id())
-                    .max_seat(concertDetails.getMax_seat())
+                    .concert_id(concertDetails.getConcertId())
+                    .max_seat(concertDetails.getMaxSeat())
                     .price(concertDetails.getPrice())
-                    .concert_date(concertDetails.getConcert_date())
+                    .concert_date(concertDetails.getConcertDate())
                     .build();
         }
     }
@@ -45,7 +45,7 @@ public class ConcertResult {
         public static SeatDTO from (Seat seat) {
             return SeatDTO.builder()
                     .seat_id(seat.getId())
-                    .seat_number(seat.getSeat_number())
+                    .seat_number(seat.getSeatNumber())
                     .status(seat.getStatus())
                     .build();
         }
@@ -82,8 +82,8 @@ public class ConcertResult {
                     .concert_id(concert.getId())
                     .concert_title(concert.getTitle())
                     .concert_detail_id(concertDetails.getId())
-                    .concert_date(concertDetails.getConcert_date())
-                    .max_seat(concertDetails.getMax_seat())
+                    .concert_date(concertDetails.getConcertDate())
+                    .max_seat(concertDetails.getMaxSeat())
                     .seats(seats.stream()
                             .map(SeatDTO::from)
                             .collect(Collectors.toList()))
@@ -114,16 +114,16 @@ public class ConcertResult {
         ) {
             return ConcertReservation.builder()
                     .reservation_id(reservation.getId())
-                    .user_id(reservation.getUser_id())
+                    .user_id(reservation.getUserId())
                     .user_name(user.getName())
-                    .concert_id(concertDetails.getConcert_id())
+                    .concert_id(concertDetails.getConcertId())
                     .concert_name(concert.getTitle())
                     .concert_detail_id(concertDetails.getId())
-                    .concert_date(concertDetails.getConcert_date())
+                    .concert_date(concertDetails.getConcertDate())
                     .seat_id(seat.getId())
-                    .seat_number(seat.getSeat_number())
+                    .seat_number(seat.getSeatNumber())
                     .status(seat.getStatus())
-                    .reservation_at(reservation.getReservation_at())
+                    .reservation_at(reservation.getReservationAt())
                     .build();
         }
     }

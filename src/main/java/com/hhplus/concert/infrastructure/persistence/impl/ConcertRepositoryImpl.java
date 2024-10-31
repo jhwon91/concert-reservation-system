@@ -6,6 +6,9 @@ import com.hhplus.concert.infrastructure.persistence.JpaConcertRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
 
 @Repository
 public class ConcertRepositoryImpl implements ConcertRepository {
@@ -17,13 +20,18 @@ public class ConcertRepositoryImpl implements ConcertRepository {
     }
 
     @Override
-    public Concert findById(long id) {
-        return jpaConcertRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("콘서트가 존재하지 않습니다."));
+    public Optional<Concert> findById(long id) {
+        return jpaConcertRepository.findById(id);
     }
 
     @Override
     public boolean exists(long id) {
         return jpaConcertRepository.existsById(id);
+    }
+
+    @Override
+    @Transactional
+    public Concert save(Concert concert) {
+        return jpaConcertRepository.save(concert);
     }
 }

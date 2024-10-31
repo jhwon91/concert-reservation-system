@@ -10,6 +10,8 @@ import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 public interface JpaQueueRepository extends JpaRepository<Queue, Long> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
@@ -17,7 +19,7 @@ public interface JpaQueueRepository extends JpaRepository<Queue, Long> {
     long countByStatusWithLock(@Param("status") TokenStatus status);
 
     List<Queue> findByUserId(Long userId);
-    Queue findByToken(String Token);
+    Optional<Queue> findByToken(UUID Token);
     int countByIdLessThanAndStatus(Long id, TokenStatus status);
-    boolean existsByToken(String token);
+    boolean existsByToken(UUID token);
 }

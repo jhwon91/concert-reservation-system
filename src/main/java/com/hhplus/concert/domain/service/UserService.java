@@ -3,9 +3,12 @@ package com.hhplus.concert.domain.service;
 import com.hhplus.concert.domain.entity.ConcertDetails;
 import com.hhplus.concert.domain.entity.User;
 import com.hhplus.concert.domain.repository.UserRepository;
+import com.hhplus.concert.domain.support.error.CoreException;
+import com.hhplus.concert.domain.support.error.ErrorType;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class UserService {
@@ -18,30 +21,25 @@ public class UserService {
 
     public User findUserById(Long userId) {
         return userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("사용자가 존재하지 않습니다."));
+                .orElseThrow(() -> new CoreException(ErrorType.USER_NOT_FOUND, userId));
     }
 
-    public User chargePoint(User user, long amount) {
-       if(amount <= 0){
-           throw new IllegalArgumentException("충전액이 0보다 작습니다.");
-       }
-       User chargeUser = User.builder()
-               .id(user.getId())
-               .name(user.getName())
-               .point(user.getPoint() + amount)
-               .build();
-       return chargeUser;
+    @Transactional
+    public User chargePoint(long userId, long amount) {
+        User user = findUserById(userId);
+        user.chargePoint(amount);
+        return user;
     }
 
     public void checkComparePoint(User user, ConcertDetails concertDetails) {
         if(user.getPoint() < concertDetails.getPrice()) {
-            throw new IllegalArgumentException("사용자 잔액이 부족합니다.");
+            throw new CoreException(ErrorType.INSUFFICIENT_USER_BALANCE,user.getPoint());
         }
     }
 
     public User usePoint(User user, ConcertDetails concertDetails) {
         if(concertDetails.getPrice() <= 0){
-            throw new IllegalArgumentException("콘서트 가격이 0보다 작습니다.");
+            throw new CoreException(ErrorType.INVALID_CONCERT_PRICE,concertDetails.getPrice());
         }
         User useUser = User.builder()
                 .id(user.getId())
@@ -51,6 +49,7 @@ public class UserService {
         return useUser;
     }
 
+    @Transactional
     public User save(User user) {
         return userRepository.save(user);
     }

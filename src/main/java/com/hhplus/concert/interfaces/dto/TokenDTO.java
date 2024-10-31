@@ -52,7 +52,7 @@ public class TokenDTO {
 
     @Builder
     public record tokenStatusRequestDTO(
-            @RequestHeader("Authorization") String token
+            @RequestHeader("Authorization") UUID token
     ) {
         public TokenCommand.tokenStatusCommand toCommand() {
             return TokenCommand.tokenStatusCommand.builder()

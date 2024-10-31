@@ -5,6 +5,7 @@ import com.hhplus.concert.application.dto.ConcertResult;
 import com.hhplus.concert.domain.entity.*;
 import com.hhplus.concert.domain.enums.SeatStatus;
 import com.hhplus.concert.domain.service.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +20,7 @@ public class ConcertFacade {
     private final UserService userService;
     private final ReservationService reservationService;
 
+    @Autowired
     public ConcertFacade(ConcertDetailService concertDetailService, ConcertService concertService, QueueService queueService, SeatService seatService, UserService userService, ReservationService reservationService) {
         this.concertDetailService = concertDetailService;
         this.concertService = concertService;
@@ -56,20 +58,21 @@ public class ConcertFacade {
      */
     @Transactional
     public ConcertResult.ConcertReservation reserveSeat(ConcertCommand.reserveSeat command){
+        // 1. 토큰 검증
         queueService.validationToken(command.token());
+
+        // 2. 콘서트와 좌석 정보 가져오기
         User user = userService.findUserById(command.userId());
-
         ConcertDetails concertDetails = concertDetailService.getConcertDetail(command.concertDetailId());
-        Concert concert = concertService.getConcert(concertDetails.getConcert_id());
+        Concert concert = concertService.getConcert(concertDetails.getConcertId());
+        Seat seat = seatService.findAvailableSeat(command.seatId());
 
-        Seat seat = seatService.getSeat(command.seatId());
-        seatService.checkAvailableStatus(seat);
+        // 3. 예약 생성 및 저장
+        Reservation reservation = reservationService.createAndSaveReservation(user,concertDetails,seat);
 
-        Reservation reservation = reservationService.enterReservation(user,concertDetails,seat);
-        Reservation saveReservation = reservationService.save(reservation);
+        // 4. 좌석 상태 변경
+        seatService.changeSeatStatus(seat,SeatStatus.TEMPORARY_ALLOCATED);
 
-        Seat changeSeat = seatService.changeSeatStatus(seat,SeatStatus.TEMPORARY_ALLOCATED);
-        Seat updateSeat = seatService.save(changeSeat);
-        return ConcertResult.ConcertReservation.from(saveReservation, user,concertDetails, concert, updateSeat);
+        return ConcertResult.ConcertReservation.from(reservation, user,concertDetails, concert, seat);
     }
 }

@@ -5,6 +5,8 @@ import com.hhplus.concert.domain.entity.Reservation;
 import com.hhplus.concert.domain.entity.Seat;
 import com.hhplus.concert.domain.entity.User;
 import com.hhplus.concert.domain.repository.ReservationRepository;
+import com.hhplus.concert.domain.support.error.CoreException;
+import com.hhplus.concert.domain.support.error.ErrorType;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -19,14 +21,9 @@ public class ReservationService {
         this.reservationRepository = reservationRepository;
     }
 
-    public Reservation enterReservation(User user, ConcertDetails concertDetails, Seat seat){
-        return Reservation.builder()
-                .concert_detail_id(concertDetails.getId())
-                .user_id(user.getId())
-                .seat_id(seat.getId())
-                .status(null)
-                .reservation_at(LocalDateTime.now())
-                .build();
+    public Reservation createAndSaveReservation(User user, ConcertDetails concertDetails, Seat seat) {
+        Reservation reservation = Reservation.create(user, concertDetails, seat);
+        return save(reservation);
     }
 
     public Reservation save(Reservation reservation) {
@@ -35,13 +32,13 @@ public class ReservationService {
 
     public Reservation getReservation(long reservationId) {
         return reservationRepository.findById(reservationId)
-                .orElseThrow(() -> new EntityNotFoundException("예약이 존재하지 않습니다."));
+                .orElseThrow(() -> new CoreException(ErrorType.RESERVATION_NOT_FOUND,reservationId));
     }
 
     // 현재이 예약 시간보다 5분 이상 지났다면 결제 불가
     public void checkReservationStatus(Reservation reservation, LocalDateTime now) {
-        if (Duration.between(reservation.getReservation_at(), now).toMinutes() >= 5) {
-            throw new IllegalArgumentException("결제 가능 시간이 지났습니다.");
+        if (Duration.between(reservation.getReservationAt(), now).toMinutes() >= 5) {
+            throw new CoreException(ErrorType.PAYMENT_TIME_EXPIRED,Duration.between(reservation.getReservationAt(), now).toMinutes());
         }
     }
 }

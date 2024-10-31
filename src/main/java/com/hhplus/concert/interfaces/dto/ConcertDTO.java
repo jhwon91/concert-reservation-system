@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class ConcertDTO {
@@ -115,7 +116,7 @@ public class ConcertDTO {
     }
 
     public record ConcertDatesRequestDTO(
-            @RequestHeader("Authorization") String token,
+            @RequestHeader("Authorization") UUID token,
             @PathVariable("concert_id") Long concertId
     ) {
         public ConcertCommand.availableConcertDates toCommand() {
@@ -127,7 +128,7 @@ public class ConcertDTO {
     }
 
     public record ConcertSeatsRequestDTO(
-            @RequestHeader("Authorization") String token,
+            @RequestHeader("Authorization") UUID token,
             @RequestParam("concert_id") Long concertId,
             @RequestParam("concert_detail_id") Long concertDetailId
     ) {
@@ -146,7 +147,7 @@ public class ConcertDTO {
             Long concertDetailId,
             Long seatId
     ) {
-        public ConcertCommand.reserveSeat toCommand(String token) {
+        public ConcertCommand.reserveSeat toCommand(UUID token) {
             return ConcertCommand.reserveSeat.builder()
                     .userId(userId)
                     .concertDetailId(concertDetailId)

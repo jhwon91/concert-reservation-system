@@ -3,11 +3,13 @@ package com.hhplus.concert.interfaces.controller;
 import com.hhplus.concert.application.ConcertFacade;
 import com.hhplus.concert.application.dto.ConcertCommand;
 import com.hhplus.concert.interfaces.dto.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api")
@@ -15,6 +17,7 @@ public class ConcertController {
 
     private final ConcertFacade concertFacade;
 
+    @Autowired
     public ConcertController(ConcertFacade concertFacade) {
         this.concertFacade = concertFacade;
     }
@@ -44,7 +47,7 @@ public class ConcertController {
      */
     @PostMapping("/reservations")
     public ConcertDTO.ReservationResponseDTO reserveSeat (
-            @RequestHeader("Authorization") String token,
+            @RequestHeader("Authorization") UUID token,
             @RequestBody ConcertDTO.ReservationRequestDTO request) {
         return ConcertDTO.ReservationResponseDTO.from(
                 concertFacade.reserveSeat(request.toCommand(token))

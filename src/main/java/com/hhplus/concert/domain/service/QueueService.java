@@ -4,6 +4,8 @@ import com.hhplus.concert.domain.entity.User;
 import com.hhplus.concert.domain.entity.Queue;
 import com.hhplus.concert.domain.enums.TokenStatus;
 import com.hhplus.concert.domain.repository.QueueRepository;
+import com.hhplus.concert.domain.support.error.CoreException;
+import com.hhplus.concert.domain.support.error.ErrorType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -62,28 +64,21 @@ public class QueueService {
         return position;
     }
 
-    public Queue getQueueByToken(String token) {
-        // token 대기열 찾기
-        Queue queue = queueRepository.findByToken(token);
-        return queue;
+    public Queue getQueueByToken(UUID token) {
+        return queueRepository.findByToken(token)
+                .orElseThrow(() -> new CoreException(ErrorType.TOKEN_NOT_FOUND, token));
     }
 
     public void validationUser(Queue queue, User user) {
         if(queue.getUserId() != user.getId()){
-            throw new IllegalArgumentException("해당 토큰의 유저가 아닙니다.");
+            throw new CoreException(ErrorType.USER_NOT_MATCHED_TOKEN, user.getId());
         }
     }
 
     //토큰 검증
-    public void validationToken(String token){
-        if (!queueRepository.exists(token)){
-            throw new IllegalArgumentException("해당 토큰을 찾을수 없습니다.");
-        }
-
-        Queue queue = queueRepository.findByToken(token);
-        if(queue.getStatus() != TokenStatus.ACTIVE){
-            throw new IllegalArgumentException("활성 상태의 토큰이 아닙니다.");
-        }
+    public void validationToken(UUID token){
+        Queue queue = getQueueByToken(token);
+        queue.validateActiveStatus();
     }
 
     public Queue changeQueueStatus(Queue queue, TokenStatus status, Optional<LocalDateTime> expiredAtOpt) {

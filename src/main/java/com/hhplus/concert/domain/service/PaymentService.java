@@ -22,7 +22,7 @@ public class PaymentService {
 
     public Payment enterReservation(User user, Reservation reservation, ConcertDetails concertDetails){
         return Payment.builder()
-                .user_id(user.getId())
+                .userId(user.getId())
                 .reservation_id(reservation.getId())
                 .amount(concertDetails.getPrice())
                 .build();

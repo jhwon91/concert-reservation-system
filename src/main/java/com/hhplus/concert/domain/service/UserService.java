@@ -8,6 +8,7 @@ import com.hhplus.concert.domain.support.error.ErrorType;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class UserService {
@@ -23,16 +24,11 @@ public class UserService {
                 .orElseThrow(() -> new CoreException(ErrorType.USER_NOT_FOUND, userId));
     }
 
-    public User chargePoint(User user, long amount) {
-       if(amount <= 0){
-           throw new CoreException(ErrorType.INVALID_CHARGE_AMOUNT,amount);
-       }
-       User chargeUser = User.builder()
-               .id(user.getId())
-               .name(user.getName())
-               .point(user.getPoint() + amount)
-               .build();
-       return chargeUser;
+    @Transactional
+    public User chargePoint(long userId, long amount) {
+        User user = findUserById(userId);
+        user.chargePoint(amount);
+        return user;
     }
 
     public void checkComparePoint(User user, ConcertDetails concertDetails) {
@@ -53,6 +49,7 @@ public class UserService {
         return useUser;
     }
 
+    @Transactional
     public User save(User user) {
         return userRepository.save(user);
     }

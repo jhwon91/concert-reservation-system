@@ -6,6 +6,7 @@ import com.hhplus.concert.domain.service.PointHistoryService;
 import com.hhplus.concert.domain.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -32,9 +33,7 @@ public class UserFacade {
      * 잔액 충전
      */
     public User chargePoint(long userId, long amount){
-        User user = userService.findUserById(userId);
-        User chargeUser = userService.chargePoint(user, amount);
-        return userService.save(chargeUser);
+        return  userService.chargePoint(userId,amount);
     }
 
     /**

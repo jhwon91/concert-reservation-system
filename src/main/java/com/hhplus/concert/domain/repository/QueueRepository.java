@@ -13,7 +13,7 @@ public interface QueueRepository {
     Queue save(Queue queue);
     List<Queue> findByUserId(long id);
     long countByStatus(TokenStatus status);
-    Queue findByToken(UUID token);
+    Optional<Queue> findByToken(UUID token);
     int countByIdLessThanAndStatus(Long id, TokenStatus status);
     boolean exists (UUID token);
 }

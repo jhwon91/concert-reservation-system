@@ -21,14 +21,9 @@ public class ReservationService {
         this.reservationRepository = reservationRepository;
     }
 
-    public Reservation enterReservation(User user, ConcertDetails concertDetails, Seat seat){
-        return Reservation.builder()
-                .concertDetailId(concertDetails.getId())
-                .userId(user.getId())
-                .seatId(seat.getId())
-                .status(null)
-                .reservationAt(LocalDateTime.now())
-                .build();
+    public Reservation createAndSaveReservation(User user, ConcertDetails concertDetails, Seat seat) {
+        Reservation reservation = Reservation.create(user, concertDetails, seat);
+        return save(reservation);
     }
 
     public Reservation save(Reservation reservation) {

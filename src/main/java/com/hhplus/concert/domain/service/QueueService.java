@@ -65,9 +65,8 @@ public class QueueService {
     }
 
     public Queue getQueueByToken(UUID token) {
-        // token 대기열 찾기
-        Queue queue = queueRepository.findByToken(token);
-        return queue;
+        return queueRepository.findByToken(token)
+                .orElseThrow(() -> new CoreException(ErrorType.TOKEN_NOT_FOUND, token));
     }
 
     public void validationUser(Queue queue, User user) {
@@ -78,14 +77,8 @@ public class QueueService {
 
     //토큰 검증
     public void validationToken(UUID token){
-        if (!queueRepository.exists(token)){
-            throw new CoreException(ErrorType.TOKEN_NOT_FOUND, token);
-        }
-
-        Queue queue = queueRepository.findByToken(token);
-        if(queue.getStatus() != TokenStatus.ACTIVE){
-            throw new CoreException(ErrorType.TOKEN_NOT_ACTIVE, token);
-        }
+        Queue queue = getQueueByToken(token);
+        queue.validateActiveStatus();
     }
 
     public Queue changeQueueStatus(Queue queue, TokenStatus status, Optional<LocalDateTime> expiredAtOpt) {

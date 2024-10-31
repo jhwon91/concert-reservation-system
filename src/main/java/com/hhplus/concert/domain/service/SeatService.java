@@ -24,29 +24,27 @@ public class SeatService {
         return seatRepository.findByConcertDetailIdAndStatus(concetDetailId,status);
     }
 
+    public Seat findAvailableSeat(Long seatId) {
+        Seat seat = getSeat(seatId);
+        checkAvailableStatus(seat);
+
+        return seat;
+    }
+
     public Seat getSeat(Long seatId) {
         return seatRepository.findByIdWithLock(seatId);
     }
 
     public void checkAvailableStatus(Seat seat) {
-        if(seat.getStatus() != SeatStatus.AVAILABLE){
-            throw new CoreException(ErrorType.SEAT_NOT_RESERVABLE,seat.getStatus());
-        }
+        seat.checkAvailableStatus();
     }
 
     public void checkTemporaryStatus(Seat seat) {
-        if(seat.getStatus() != SeatStatus.TEMPORARY_ALLOCATED){
-            throw new CoreException(ErrorType.SEAT_NOT_PAYABLE,seat.getStatus());
-        }
+        seat.checkTemporaryStatus();
     }
 
-    public Seat changeSeatStatus(Seat seat, SeatStatus status) {
-        return Seat.builder()
-                .id(seat.getId())
-                .concertDetailId(seat.getConcertDetailId())
-                .seat_number(seat.getSeat_number())
-                .status(status)
-                .build();
+    public void changeSeatStatus(Seat seat, SeatStatus status) {
+        seat.changeStatus(status);
     }
 
 

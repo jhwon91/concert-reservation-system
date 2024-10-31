@@ -68,8 +68,7 @@ public class PaymentFacade {
         Payment enterPayment = paymentService.enterReservation(paymentUser, reservation, concertDetails);
         paymentService.save(enterPayment);
 
-        Seat changeSeat = seatService.changeSeatStatus(seat, SeatStatus.RESERVED);
-        Seat updateSeat = seatService.save(changeSeat);
+        seatService.changeSeatStatus(seat,SeatStatus.RESERVED);
 
         Queue changeQueueStatus = queueService.changeQueueStatus(queue, TokenStatus.EXPIRED, Optional.of(LocalDateTime.now()));
         queueService.save(changeQueueStatus);
@@ -78,7 +77,7 @@ public class PaymentFacade {
                 .user_id(paymentUser.getId())
                 .user_name(paymentUser.getName())
                 .point(paymentUser.getPoint())
-                .status(updateSeat.getStatus())
+                .status(seat.getStatus())
                 .build();
     }
 }

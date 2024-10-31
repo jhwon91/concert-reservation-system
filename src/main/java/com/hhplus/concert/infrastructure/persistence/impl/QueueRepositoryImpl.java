@@ -39,7 +39,7 @@ public class QueueRepositoryImpl implements QueueRepository {
     }
 
     @Override
-    public Queue findByToken(UUID token) {
+    public Optional<Queue> findByToken(UUID token) {
         return jpaQueueRepository.findByToken(token);
     }
 

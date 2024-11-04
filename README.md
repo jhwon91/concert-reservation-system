@@ -6,3 +6,4 @@
 ## [02. 시퀀스 다이어그램](docs/02_SequenceDiagram.md)
 ## [03. ERD](docs/03.ERD.md)
 ## [04. API 명세서](docs/04.API.md)
+## [05. 동시성 제어](https://velog.io/@jhwon91/Lock)

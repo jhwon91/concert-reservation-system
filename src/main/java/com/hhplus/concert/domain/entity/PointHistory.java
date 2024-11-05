@@ -26,5 +26,4 @@ public class PointHistory {
 
     @Enumerated(EnumType.STRING)
     TransactionType type;
-
 }

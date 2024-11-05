@@ -1,5 +1,7 @@
 package com.hhplus.concert.application;
 
+import com.hhplus.concert.application.dto.UserCommand;
+import com.hhplus.concert.application.dto.UserResult;
 import com.hhplus.concert.domain.entity.PointHistory;
 import com.hhplus.concert.domain.entity.User;
 import com.hhplus.concert.domain.service.PointHistoryService;
@@ -24,23 +26,25 @@ public class UserFacade {
     /**
      * 사용자 잔액 조회
      */
-    public User pointSearch(long userId){
-        User user = userService.findUserById(userId);
-        return user;
+    public UserResult.searchPoint searchPoint(UserCommand.searchPoint command){
+        User user = userService.findUserById(command.userId());
+        return UserResult.searchPoint.from(user);
     }
 
     /**
      * 잔액 충전
      */
-    public User chargePoint(long userId, long amount){
-        return  userService.chargePoint(userId,amount);
+    public UserResult.chargePoint chargePoint(UserCommand.chargePoint command){
+        User user = userService.chargePoint(command.userId(), command.amount());
+        return  UserResult.chargePoint.from(user);
     }
 
     /**
      * 특정 유저의 잔액 충전/이용 내역을 조회하는 기능
      */
-    public List<PointHistory> history(long userId){
-        User user = userService.findUserById(userId);
-        return pointHistoryService.getUserHistory(user.getId());
+    public UserResult.history history(UserCommand.history command){
+        User user = userService.findUserById(command.userId());
+        List<PointHistory> pointHistory = pointHistoryService.getUserHistory(user.getId());
+        return UserResult.history.from(user, pointHistory);
     }
 }

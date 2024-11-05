@@ -7,12 +7,12 @@ import java.util.UUID;
 public class TokenCommand{
 
     @Builder
-    public record issueTokenCommand(
+    public record issueToken(
             Long userId
     ){ }
 
     @Builder
-    public record tokenStatusCommand(
+    public record tokenStatus(
             UUID token
     ){ }
 }

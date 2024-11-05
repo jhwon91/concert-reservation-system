@@ -23,7 +23,7 @@ public class TokenFacade {
     /**
      * 유저 토큰 발급
      */
-    public TokenResult.issueToken issueToken(TokenCommand.issueTokenCommand command) {
+    public TokenResult.issueToken issueToken(TokenCommand.issueToken command) {
         User user = userService.findUserById(command.userId());
         Queue queue = queueService.addToQueue(user);
         int position = queueService.getQueuePosition(queue);
@@ -33,7 +33,7 @@ public class TokenFacade {
     /**
      * 대기열 상태 확인
      */
-    public TokenResult.tokenStatus getTokenStatus(TokenCommand.tokenStatusCommand command) {
+    public TokenResult.tokenStatus getTokenStatus(TokenCommand.tokenStatus command) {
         Queue queue = queueService.getQueueByToken(command.token());
         int position = queueService.getQueuePosition(queue);
         return TokenResult.tokenStatus.from(queue, position);

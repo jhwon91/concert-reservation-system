@@ -1,5 +1,6 @@
 package com.hhplus.concert.application;
 
+import com.hhplus.concert.application.dto.UserCommand;
 import com.hhplus.concert.domain.entity.User;
 import com.hhplus.concert.domain.repository.PointHistoryRepository;
 import com.hhplus.concert.domain.repository.UserRepository;
@@ -45,11 +46,18 @@ class UserFacadeTest {
                 .point(100L)
                 .build();
         saveuser = userRepository.save(user);
+
     }
     @Test
     void 동시에_포인트를_충전할_경우_하나이상_성공해야함() throws InterruptedException {
         // given
         int threadCount = 10;
+
+        UserCommand.chargePoint command =  UserCommand.chargePoint.builder()
+                .userId(saveuser.getId())
+                .amount(1000L)
+                .build();
+
         ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
         CountDownLatch latch = new CountDownLatch(threadCount);
         AtomicInteger successCount = new AtomicInteger(0);
@@ -59,7 +67,7 @@ class UserFacadeTest {
         for (int i = 0; i < threadCount; i++) {
             executorService.submit(() -> {
                 try {
-                    userFacade.chargePoint(saveuser.getId(),1000L);
+                    userFacade.chargePoint(command);
                     successCount.incrementAndGet();
                 } catch (Exception e) {
 //                    e.printStackTrace(); // 예외 로깅

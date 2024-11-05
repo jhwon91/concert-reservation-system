@@ -1,6 +1,5 @@
 package com.hhplus.concert.interfaces.dto;
 
-import com.fasterxml.jackson.databind.deser.std.UUIDDeserializer;
 import com.hhplus.concert.application.dto.TokenCommand;
 import com.hhplus.concert.application.dto.TokenResult;
 import com.hhplus.concert.domain.enums.TokenStatus;
@@ -43,8 +42,8 @@ public class TokenDTO {
     public record issueTokenRequestDTO(
             Long user_id
     ) {
-        public TokenCommand.issueTokenCommand toCommand() {
-            return TokenCommand.issueTokenCommand.builder()
+        public TokenCommand.issueToken toCommand() {
+            return TokenCommand.issueToken.builder()
                     .userId(user_id)
                     .build();
         }
@@ -54,8 +53,8 @@ public class TokenDTO {
     public record tokenStatusRequestDTO(
             @RequestHeader("Authorization") UUID token
     ) {
-        public TokenCommand.tokenStatusCommand toCommand() {
-            return TokenCommand.tokenStatusCommand.builder()
+        public TokenCommand.tokenStatus toCommand() {
+            return TokenCommand.tokenStatus.builder()
                     .token(token)
                     .build();
         }

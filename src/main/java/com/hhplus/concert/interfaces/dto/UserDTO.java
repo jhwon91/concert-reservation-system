@@ -30,13 +30,13 @@ public class UserDTO {
     }
 
     @Builder
-    public record searchPointResponseDTO(
+    public record SearchPointResponseDTO(
             Long userId,
             String userName,
             Long point
     ) {
-        public static searchPointResponseDTO from(UserResult.searchPoint result){
-            return searchPointResponseDTO.builder()
+        public static SearchPointResponseDTO from(UserResult.SearchPoint result){
+            return SearchPointResponseDTO.builder()
                     .userId(result.userId())
                     .userName(result.userName())
                     .point(result.point())
@@ -45,13 +45,13 @@ public class UserDTO {
     }
 
     @Builder
-    public record chargePointResponseDTO(
+    public record ChargePointResponseDTO(
             Long userId,
             String userName,
             Long point
     ) {
-        public static chargePointResponseDTO from(UserResult.chargePoint result){
-            return chargePointResponseDTO.builder()
+        public static ChargePointResponseDTO from(UserResult.ChargePoint result){
+            return ChargePointResponseDTO.builder()
                     .userId(result.userId())
                     .userName(result.userName())
                     .point(result.point())
@@ -60,14 +60,14 @@ public class UserDTO {
     }
 
     @Builder
-    public record historyResponseDTO(
+    public record HistoryResponseDTO(
             Long userId,
             String userName,
             Long point,
             List<PointHistoryDTO> pointHistory
     ) {
-        public static historyResponseDTO from(UserResult.history result){
-            return historyResponseDTO.builder()
+        public static HistoryResponseDTO from(UserResult.History result){
+            return HistoryResponseDTO.builder()
                     .userId(result.userId())
                     .userName(result.userName())
                     .point(result.point())
@@ -78,40 +78,37 @@ public class UserDTO {
         }
     }
 
-    @Builder
-    public record searchPointRequestDTO(
+    public record SearchPointRequestDTO(
             @PathVariable long userId
     ) {
-        public UserCommand.searchPoint toCommand() {
-            return UserCommand.searchPoint.builder()
+        public UserCommand.SearchPoint toCommand() {
+            return UserCommand.SearchPoint.builder()
                     .userId(userId)
                     .build();
         }
     }
 
-    @Builder
-    public record chargePointRequestDTO(
+    public record ChargePointRequestDTO(
             @PathVariable long userId,
-            @RequestBody chargePointRequestBody chargePointRequestBody
+            @RequestBody ChargePointRequestBody chargePointRequestBody
     ) {
-        public UserCommand.chargePoint toCommand() {
-            return UserCommand.chargePoint.builder()
+        public UserCommand.ChargePoint toCommand() {
+            return UserCommand.ChargePoint.builder()
                     .userId(userId)
                     .amount(chargePointRequestBody.point())
                     .build();
         }
     }
 
-    public record chargePointRequestBody(
+    public record ChargePointRequestBody(
             Long point
     ) {}
 
-    @Builder
-    public record historyRequestDTO(
+    public record HistoryRequestDTO(
             @PathVariable long userId
     ) {
-        public UserCommand.history toCommand() {
-            return UserCommand.history.builder()
+        public UserCommand.History toCommand() {
+            return UserCommand.History.builder()
                     .userId(userId)
                     .build();
         }

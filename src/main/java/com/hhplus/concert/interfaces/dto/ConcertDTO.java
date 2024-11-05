@@ -5,6 +5,7 @@ import com.hhplus.concert.application.dto.ConcertResult;
 import com.hhplus.concert.domain.enums.SeatStatus;
 import lombok.Builder;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -119,8 +120,8 @@ public class ConcertDTO {
             @RequestHeader("Authorization") UUID token,
             @PathVariable("concert_id") Long concertId
     ) {
-        public ConcertCommand.availableConcertDates toCommand() {
-            return ConcertCommand.availableConcertDates.builder()
+        public ConcertCommand.AvailableConcertDates toCommand() {
+            return ConcertCommand.AvailableConcertDates.builder()
                     .token(token)
                     .concertId(concertId)
                     .build();
@@ -132,8 +133,8 @@ public class ConcertDTO {
             @RequestParam("concert_id") Long concertId,
             @RequestParam("concert_detail_id") Long concertDetailId
     ) {
-        public ConcertCommand.availableConcertSeats toCommand() {
-            return ConcertCommand.availableConcertSeats.builder()
+        public ConcertCommand.AvailableConcertSeats toCommand() {
+            return ConcertCommand.AvailableConcertSeats.builder()
                     .token(token)
                     .concertId(concertId)
                     .concertDetailId(concertDetailId)
@@ -141,19 +142,23 @@ public class ConcertDTO {
         }
     }
 
-    @Builder
     public record ReservationRequestDTO(
-            Long userId,
-            Long concertDetailId,
-            Long seatId
-    ) {
-        public ConcertCommand.reserveSeat toCommand(UUID token) {
-            return ConcertCommand.reserveSeat.builder()
-                    .userId(userId)
-                    .concertDetailId(concertDetailId)
-                    .seatId(seatId)
+            @RequestHeader("Authorization") UUID token,
+            @RequestBody ReservationRequestBody body
+    ){
+        public ConcertCommand.ReserveSeat toCommand() {
+            return ConcertCommand.ReserveSeat.builder()
+                    .userId(body.userId())
+                    .concertDetailId(body.concertDetailId())
+                    .seatId(body.seatId())
                     .token(token)
                     .build();
         }
     }
+
+    public record ReservationRequestBody(
+            Long userId,
+            Long concertDetailId,
+            Long seatId
+    ) { }
 }

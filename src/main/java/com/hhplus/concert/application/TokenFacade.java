@@ -23,19 +23,19 @@ public class TokenFacade {
     /**
      * 유저 토큰 발급
      */
-    public TokenResult.issueToken issueToken(TokenCommand.issueToken command) {
+    public TokenResult.IssueToken issueToken(TokenCommand.IssueToken command) {
         User user = userService.findUserById(command.userId());
         Queue queue = queueService.addToQueue(user);
         int position = queueService.getQueuePosition(queue);
-        return TokenResult.issueToken.from(queue, position);
+        return TokenResult.IssueToken.from(queue, position);
     }
 
     /**
      * 대기열 상태 확인
      */
-    public TokenResult.tokenStatus getTokenStatus(TokenCommand.tokenStatus command) {
+    public TokenResult.TokenStatusResult getTokenStatus(TokenCommand.TokenStatus command) {
         Queue queue = queueService.getQueueByToken(command.token());
         int position = queueService.getQueuePosition(queue);
-        return TokenResult.tokenStatus.from(queue, position);
+        return TokenResult.TokenStatusResult.from(queue, position);
     }
 }

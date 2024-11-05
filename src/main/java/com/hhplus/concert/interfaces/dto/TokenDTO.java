@@ -16,7 +16,7 @@ public class TokenDTO {
             TokenStatus status,
             Integer position
     ) {
-        public static TokenResponseDTO from(TokenResult.issueToken result){
+        public static TokenResponseDTO from(TokenResult.IssueToken result){
             return TokenResponseDTO.builder()
                     .token(result.token())
                     .status(result.status())
@@ -30,7 +30,7 @@ public class TokenDTO {
             TokenStatus status,
             Integer position
     ) {
-        public static TokenStatusResponseDTO from(TokenResult.tokenStatus result){
+        public static TokenStatusResponseDTO from(TokenResult.TokenStatusResult result){
             return TokenStatusResponseDTO.builder()
                     .status(result.status())
                     .position(result.position())
@@ -38,23 +38,21 @@ public class TokenDTO {
         }
     }
 
-    @Builder
-    public record issueTokenRequestDTO(
+    public record IssueTokenRequestDTO(
             Long user_id
     ) {
-        public TokenCommand.issueToken toCommand() {
-            return TokenCommand.issueToken.builder()
+        public TokenCommand.IssueToken toCommand() {
+            return TokenCommand.IssueToken.builder()
                     .userId(user_id)
                     .build();
         }
     }
 
-    @Builder
-    public record tokenStatusRequestDTO(
+    public record TokenStatusRequestDTO(
             @RequestHeader("Authorization") UUID token
     ) {
-        public TokenCommand.tokenStatus toCommand() {
-            return TokenCommand.tokenStatus.builder()
+        public TokenCommand.TokenStatus toCommand() {
+            return TokenCommand.TokenStatus.builder()
                     .token(token)
                     .build();
         }

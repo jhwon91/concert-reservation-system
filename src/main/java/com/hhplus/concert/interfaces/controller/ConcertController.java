@@ -46,11 +46,7 @@ public class ConcertController {
      * 5. 좌석 예약
      */
     @PostMapping("/reservations")
-    public ConcertDTO.ReservationResponseDTO reserveSeat (
-            @RequestHeader("Authorization") UUID token,
-            @RequestBody ConcertDTO.ReservationRequestDTO request) {
-        return ConcertDTO.ReservationResponseDTO.from(
-                concertFacade.reserveSeat(request.toCommand(token))
-        );
+    public ConcertDTO.ReservationResponseDTO reserveSeat (ConcertDTO.ReservationRequestDTO request) {
+        return ConcertDTO.ReservationResponseDTO.from(concertFacade.reserveSeat(request.toCommand()));
     }
 }

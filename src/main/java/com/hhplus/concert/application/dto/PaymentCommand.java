@@ -6,7 +6,7 @@ import java.util.UUID;
 
 public class PaymentCommand {
     @Builder
-    public record payment(
+    public record PaymentConcert(
             UUID token,
             Long userId,
             Long reservationId

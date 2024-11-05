@@ -29,13 +29,13 @@ public class UserResult {
 
 
     @Builder
-    public record searchPoint(
+    public record SearchPoint(
             Long userId,
             String userName,
             Long point
     ){
-        public static searchPoint from(User user){
-            return searchPoint.builder()
+        public static SearchPoint from(User user){
+            return SearchPoint.builder()
                     .userId(user.getId())
                     .userName(user.getName())
                     .point(user.getPoint())
@@ -44,13 +44,13 @@ public class UserResult {
     }
 
     @Builder
-    public record chargePoint(
+    public record ChargePoint(
             Long userId,
             String userName,
             Long point
     ){
-        public static chargePoint from(User user){
-            return chargePoint.builder()
+        public static ChargePoint from(User user){
+            return ChargePoint.builder()
                     .userId(user.getId())
                     .userName(user.getName())
                     .point(user.getPoint())
@@ -59,14 +59,14 @@ public class UserResult {
     }
 
     @Builder
-    public record history(
+    public record History(
             Long userId,
             String userName,
             Long point,
             List<PointHistoryDTO> pointHistory
     ){
-        public static history from(User user, List<PointHistory> pointHistory){
-            return history.builder()
+        public static History from(User user, List<PointHistory> pointHistory){
+            return History.builder()
                     .userId(user.getId())
                     .userName(user.getName())
                     .point(user.getPoint())

@@ -46,7 +46,7 @@ public class PaymentFacade {
      * UUID token, Long userId, Long reservationId
      */
     @Transactional
-    public PaymentResult.paymentConcert paymentConcert(PaymentCommand.payment command){
+    public PaymentResult.PaymentConcert paymentConcert(PaymentCommand.PaymentConcert command){
         queueService.validationToken(command.token());
 
         Queue queue = queueService.getQueueByToken(command.token());
@@ -75,6 +75,6 @@ public class PaymentFacade {
         Queue changeQueueStatus = queueService.changeQueueStatus(queue, TokenStatus.EXPIRED, Optional.of(LocalDateTime.now()));
         queueService.save(changeQueueStatus);
 
-        return PaymentResult.paymentConcert.from(paymentUser, seat);
+        return PaymentResult.PaymentConcert.from(paymentUser, seat);
     }
 }

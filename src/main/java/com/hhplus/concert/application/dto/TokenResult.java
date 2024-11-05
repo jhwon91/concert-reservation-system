@@ -9,13 +9,13 @@ import java.util.UUID;
 public class TokenResult{
 
     @Builder
-    public record issueToken(
+    public record IssueToken(
             UUID token,
             TokenStatus status,
             Integer position
     ) {
-        public static issueToken from(Queue queue, int position) {
-            return issueToken.builder()
+        public static IssueToken from(Queue queue, int position) {
+            return IssueToken.builder()
                     .token(queue.getToken())
                     .status(queue.getStatus())
                     .position(position)
@@ -24,12 +24,12 @@ public class TokenResult{
     }
 
     @Builder
-    public record tokenStatus(
+    public record TokenStatusResult(
             TokenStatus status,
             Integer position
     ) {
-        public static tokenStatus from(Queue queue, int position) {
-            return tokenStatus.builder()
+        public static TokenStatusResult from(Queue queue, int position) {
+            return TokenStatusResult.builder()
                     .status(queue.getStatus())
                     .position(position)
                     .build();

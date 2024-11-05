@@ -86,7 +86,7 @@ class ConcertFacadeTest {
         AtomicInteger successCount = new AtomicInteger(0);
         AtomicInteger failCount = new AtomicInteger(0);
 
-        ConcertCommand.reserveSeat command = new ConcertCommand.reserveSeat(
+        ConcertCommand.ReserveSeat command = new ConcertCommand.ReserveSeat(
                 token, userId, concertDetailId, seatId);
 
         // when

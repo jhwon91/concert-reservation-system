@@ -22,7 +22,7 @@ public class TokenController {
      * 1. 토큰 발급
      */
     @PostMapping("/tokens")
-    public TokenDTO.TokenResponseDTO issueToken(@RequestBody TokenDTO.issueTokenRequestDTO request) {
+    public TokenDTO.TokenResponseDTO issueToken(@RequestBody TokenDTO.IssueTokenRequestDTO request) {
         return TokenDTO.TokenResponseDTO.from(tokenFacade.issueToken(request.toCommand()));
     }
 
@@ -30,7 +30,7 @@ public class TokenController {
      * 2. 대기열 상태 확인
      */
     @GetMapping("/tokens/status")
-    public TokenDTO.TokenStatusResponseDTO getTokenStatus(TokenDTO.tokenStatusRequestDTO request) {
+    public TokenDTO.TokenStatusResponseDTO getTokenStatus(TokenDTO.TokenStatusRequestDTO request) {
         return TokenDTO.TokenStatusResponseDTO.from(tokenFacade.getTokenStatus(request.toCommand()));
     }
 

@@ -2,22 +2,20 @@ package com.hhplus.concert.application.dto;
 
 import lombok.Builder;
 
-import java.util.UUID;
-
 public class UserCommand {
     @Builder
-    public record searchPoint(
+    public record SearchPoint(
             Long userId
     ){ }
 
     @Builder
-    public record chargePoint(
+    public record ChargePoint(
             Long userId,
             Long amount
     ){ }
 
     @Builder
-    public record history(
+    public record History(
             Long userId
     ){ }
 }

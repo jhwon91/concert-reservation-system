@@ -53,7 +53,7 @@ class UserFacadeTest {
         // given
         int threadCount = 10;
 
-        UserCommand.chargePoint command =  UserCommand.chargePoint.builder()
+        UserCommand.ChargePoint command =  UserCommand.ChargePoint.builder()
                 .userId(saveuser.getId())
                 .amount(1000L)
                 .build();

@@ -7,7 +7,7 @@ import java.util.UUID;
 public class ConcertCommand {
 
     @Builder
-    public record availableConcertDates(
+    public record AvailableConcertDates(
             UUID token,
             Long concertId
     ){
@@ -15,14 +15,14 @@ public class ConcertCommand {
     }
 
     @Builder
-    public record availableConcertSeats(
+    public record AvailableConcertSeats(
             UUID token,
             Long concertId,
             Long concertDetailId
     ){}
 
     @Builder
-    public record reserveSeat(
+    public record ReserveSeat(
             UUID token,
             Long userId,
             Long concertDetailId,

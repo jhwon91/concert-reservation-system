@@ -26,25 +26,25 @@ public class UserFacade {
     /**
      * 사용자 잔액 조회
      */
-    public UserResult.searchPoint searchPoint(UserCommand.searchPoint command){
+    public UserResult.SearchPoint searchPoint(UserCommand.SearchPoint command){
         User user = userService.findUserById(command.userId());
-        return UserResult.searchPoint.from(user);
+        return UserResult.SearchPoint.from(user);
     }
 
     /**
      * 잔액 충전
      */
-    public UserResult.chargePoint chargePoint(UserCommand.chargePoint command){
+    public UserResult.ChargePoint chargePoint(UserCommand.ChargePoint command){
         User user = userService.chargePoint(command.userId(), command.amount());
-        return  UserResult.chargePoint.from(user);
+        return  UserResult.ChargePoint.from(user);
     }
 
     /**
      * 특정 유저의 잔액 충전/이용 내역을 조회하는 기능
      */
-    public UserResult.history history(UserCommand.history command){
+    public UserResult.History history(UserCommand.History command){
         User user = userService.findUserById(command.userId());
         List<PointHistory> pointHistory = pointHistoryService.getUserHistory(user.getId());
-        return UserResult.history.from(user, pointHistory);
+        return UserResult.History.from(user, pointHistory);
     }
 }

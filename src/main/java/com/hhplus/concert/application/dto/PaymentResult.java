@@ -8,14 +8,14 @@ import lombok.Builder;
 public class PaymentResult {
 
     @Builder
-    public record paymentConcert(
+    public record PaymentConcert(
             Long userId,
             String userName,
             Long point,
             SeatStatus status
     ) {
-        public static PaymentResult.paymentConcert from(User user, Seat seat) {
-            return PaymentResult.paymentConcert.builder()
+        public static PaymentConcert from(User user, Seat seat) {
+            return PaymentConcert.builder()
                     .userId(user.getId())
                     .userName(user.getName())
                     .point(user.getPoint())

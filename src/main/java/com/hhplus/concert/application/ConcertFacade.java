@@ -33,7 +33,7 @@ public class ConcertFacade {
     /**
      *  예약 가능한 날짜 조회
      */
-    public ConcertResult.ConcertAvailableDates getAvailableConcertDates(ConcertCommand.availableConcertDates command) {
+    public ConcertResult.ConcertAvailableDates getAvailableConcertDates(ConcertCommand.AvailableConcertDates command) {
         queueService.validationToken(command.token());
         Concert concert = concertService.getConcert(command.concertId());
         List<ConcertDetails> concertDetailsList = concertDetailService.getAvailableConcertDates(concert.getId());
@@ -44,7 +44,7 @@ public class ConcertFacade {
     /**
      *  특정 날짜의 예약 가능한 좌석 조회
      */
-    public ConcertResult.ConcertAvailableSeats getAvailableSeats(ConcertCommand.availableConcertSeats command) {
+    public ConcertResult.ConcertAvailableSeats getAvailableSeats(ConcertCommand.AvailableConcertSeats command) {
         queueService.validationToken(command.token());
         Concert concert = concertService.getConcert(command.concertId());
         ConcertDetails concertDetails = concertDetailService.getConcertDetail(command.concertDetailId());
@@ -57,7 +57,7 @@ public class ConcertFacade {
      *  좌석 예약
      */
     @Transactional
-    public ConcertResult.ConcertReservation reserveSeat(ConcertCommand.reserveSeat command){
+    public ConcertResult.ConcertReservation reserveSeat(ConcertCommand.ReserveSeat command){
         // 1. 토큰 검증
         queueService.validationToken(command.token());
 

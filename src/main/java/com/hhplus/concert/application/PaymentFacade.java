@@ -1,5 +1,6 @@
 package com.hhplus.concert.application;
 
+import com.hhplus.concert.application.dto.PaymentCommand;
 import com.hhplus.concert.application.dto.PaymentResult;
 import com.hhplus.concert.domain.entity.*;
 import com.hhplus.concert.domain.enums.SeatStatus;
@@ -42,16 +43,17 @@ public class PaymentFacade {
      * 7. 좌석 상태 변경
      * 8. 토큰 상태 변경
      * 9. 다음 대기자 활성 처리?
+     * UUID token, Long userId, Long reservationId
      */
     @Transactional
-    public PaymentResult.Payment paymentConcert(UUID token, Long userId, Long reservationId){
-        queueService.validationToken(token);
+    public PaymentResult.paymentConcert paymentConcert(PaymentCommand.payment command){
+        queueService.validationToken(command.token());
 
-        Queue queue = queueService.getQueueByToken(token);
-        User user = userService.findUserById(userId);
+        Queue queue = queueService.getQueueByToken(command.token());
+        User user = userService.findUserById(command.userId());
         queueService.validationUser(queue, user);
 
-        Reservation reservation = reservationService.getReservation(reservationId);
+        Reservation reservation = reservationService.getReservation(command.reservationId());
         ConcertDetails concertDetails = concertDetailService.getConcertDetail(reservation.getConcertDetailId());
         Seat seat = seatService.getSeat(reservation.getSeatId());
 
@@ -73,11 +75,6 @@ public class PaymentFacade {
         Queue changeQueueStatus = queueService.changeQueueStatus(queue, TokenStatus.EXPIRED, Optional.of(LocalDateTime.now()));
         queueService.save(changeQueueStatus);
 
-        return PaymentResult.Payment.builder()
-                .user_id(paymentUser.getId())
-                .user_name(paymentUser.getName())
-                .point(paymentUser.getPoint())
-                .status(seat.getStatus())
-                .build();
+        return PaymentResult.paymentConcert.from(paymentUser, seat);
     }
 }

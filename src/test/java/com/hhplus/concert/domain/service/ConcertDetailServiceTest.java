@@ -6,6 +6,8 @@ import com.hhplus.concert.domain.enums.SeatStatus;
 import com.hhplus.concert.domain.repository.ConcertDetailRepository;
 import com.hhplus.concert.domain.support.error.CoreException;
 import com.hhplus.concert.domain.support.error.ErrorType;
+import com.hhplus.concert.testFixture.ConcertDetailsFixture;
+import com.hhplus.concert.testFixture.ConcertFixture;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -34,33 +36,16 @@ class ConcertDetailServiceTest {
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
-
-        concert = Concert.builder()
-                .id(1L)
-                .title("testConcert")
-                .build();
+        concert = ConcertFixture.createConcert(1L, "testConcert");
     }
 
     @Test
     void 예약_가능한_콘서트_일정_조회() {
-        ConcertDetails detail1 =  ConcertDetails.builder()
-                .id(1L)
-                .concertId(concert.getId())
-                .maxSeat(10L)
-                .price(100L)
-                .concertDate(LocalDate.of(2024, 10, 30))
-                .build();
-        ConcertDetails detail2 =  ConcertDetails.builder()
-                .id(1L)
-                .concertId(concert.getId())
-                .maxSeat(10L)
-                .price(100L)
-                .concertDate(LocalDate.of(2024, 10, 31))
-                .build();
-        List<ConcertDetails> mockConcertDetailsList = List.of(detail1, detail2);
+
+        List<ConcertDetails> ConcertDetailsList = ConcertDetailsFixture.createConcertDetailList(concert,LocalDate.of(2024, 10, 30));
 
         when(concertDetailRepository.findAvailableConcertDatesByConcertId(eq(concert.getId()), eq(SeatStatus.AVAILABLE)))
-                .thenReturn(mockConcertDetailsList);
+                .thenReturn(ConcertDetailsList);
 
         List<ConcertDetails> result = concertDetailService.getAvailableConcertDates(1L);
 
@@ -70,6 +55,11 @@ class ConcertDetailServiceTest {
         assertEquals(LocalDate.of(2024, 10, 31), result.get(1).getConcertDate());
     }
 
+    @Test
+    void 존재하는_콘서트_상세정보_조회_성공() {
+        when(concertDetailRepository.exists(anyLong())).thenReturn(true);
+        assertDoesNotThrow(() -> concertDetailService.existConcertDetail(1L));
+    }
 
     @Test
     void 존재하지_않는_콘서트_상세정보_조회_예외발생() {
@@ -82,31 +72,8 @@ class ConcertDetailServiceTest {
     }
 
     @Test
-    void 존재하는_콘서트_상세정보_조회_성공() {
-        when(concertDetailRepository.exists(anyLong())).thenReturn(true);
-        assertDoesNotThrow(() -> concertDetailService.existConcertDetail(1L));
-    }
-
-    @Test
-    void 콘서트_상세정보_ID로_존재하지_않는_콘서트_상세정보_조회_예외발생() {
-
-        when(concertDetailRepository.findById(anyLong())).thenReturn(Optional.empty());
-
-        CoreException exception = assertThrows(CoreException.class, () -> concertDetailService.getConcertDetail(1L));
-
-        assertEquals(ErrorType.CONCERT_DETAIL_NOT_FOUND, exception.getErrorType());
-        assertEquals(1L, exception.getPayload());
-    }
-
-    @Test
     void 콘서트_상세정보_ID로_존재하는_콘서트_상세정보_조회_성공() {
-        ConcertDetails detail1 =  ConcertDetails.builder()
-                .id(1L)
-                .concertId(concert.getId())
-                .maxSeat(10L)
-                .price(100L)
-                .concertDate(LocalDate.of(2024, 10, 30))
-                .build();
+        ConcertDetails detail1 =  ConcertDetailsFixture.createConcertDetail(concert,LocalDate.of(2024,10,30));
 
         when(concertDetailRepository.findById(1L)).thenReturn(Optional.of(detail1));
 
@@ -119,7 +86,14 @@ class ConcertDetailServiceTest {
         assertEquals(LocalDate.of(2024, 10, 30), result.getConcertDate());
     }
 
+    @Test
+    void 콘서트_상세정보_ID로_존재하지_않는_콘서트_상세정보_조회_예외발생() {
 
+        when(concertDetailRepository.findById(anyLong())).thenReturn(Optional.empty());
 
+        CoreException exception = assertThrows(CoreException.class, () -> concertDetailService.getConcertDetail(1L));
 
+        assertEquals(ErrorType.CONCERT_DETAIL_NOT_FOUND, exception.getErrorType());
+        assertEquals(1L, exception.getPayload());
+    }
 }

@@ -55,8 +55,8 @@ public class QueueRepositoryImpl implements QueueRepository {
     }
 
     @Override
-    public List<Queue> findByStatusOrderByCreatedAtAsc(TokenStatus status, Pageable pageable) {
-        return jpaQueueRepository.findByStatusOrderByCreatedAtAsc(status,pageable);
+    public List<Queue> findByStatus(TokenStatus status, Pageable pageable) {
+        return jpaQueueRepository.findByStatus(status,pageable);
     }
 
     @Override

@@ -18,6 +18,6 @@ public interface QueueRepository {
     Optional<Queue> findByToken(UUID token);
     int countByIdLessThanAndStatus(Long id, TokenStatus status);
     boolean exists (UUID token);
-    List<Queue> findByStatusOrderByCreatedAtAsc(TokenStatus status, Pageable pageable);
+    List<Queue> findByStatus(TokenStatus status, Pageable pageable);
     List<Queue> findActiveQueuesToExpire(TokenStatus status, LocalDateTime expirationTime);
 }

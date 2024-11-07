@@ -88,8 +88,8 @@ public class QueueService {
     }
 
     public List<Queue> findNextWaitingQueues(long limit) {
-        Pageable pageable = PageRequest.of(0,  (int) limit, Sort.by("created_at").ascending());
-        return queueRepository.findByStatusOrderByCreatedAtAsc(TokenStatus.WAIT, pageable);
+        Pageable pageable = PageRequest.of(0,  (int) limit, Sort.by("createdAt").ascending());
+        return queueRepository.findByStatus(TokenStatus.WAIT, pageable);
     }
 
     public List<Queue> findActiveQueuesToExpire(TokenStatus status, LocalDateTime expirationTime) {

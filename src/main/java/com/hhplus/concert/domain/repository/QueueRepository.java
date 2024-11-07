@@ -3,7 +3,6 @@ package com.hhplus.concert.domain.repository;
 import com.hhplus.concert.domain.entity.Queue;
 import com.hhplus.concert.domain.enums.TokenStatus;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.repository.query.Param;
 
 
 import java.time.LocalDateTime;

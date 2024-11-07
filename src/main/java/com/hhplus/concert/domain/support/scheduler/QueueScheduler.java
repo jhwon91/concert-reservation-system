@@ -22,7 +22,7 @@ public class QueueScheduler {
         this.queueService = queueService;
     }
 
-    @Scheduled(cron = "*/10 * * * * *", zone = "Asia/Seoul")
+    @Scheduled(cron = "*/1 * * * * *", zone = "Asia/Seoul")
     @Transactional
     public void activeQueue () {
         long maxActiveUsers = queueService.getMaxActiveUsers();
@@ -37,10 +37,11 @@ public class QueueScheduler {
 
         for (Queue queue : waitingQueues) {
             queueService.changeQueueStatus(queue, TokenStatus.ACTIVE, Optional.empty());
+            queueService.save(queue);
         }
     }
 
-    @Scheduled(cron = "*/10 * * * * *", zone = "Asia/Seoul")
+    @Scheduled(cron = "*/1 * * * * *", zone = "Asia/Seoul")
     @Transactional
     public void expiredQueue () {
         LocalDateTime expirationTime = LocalDateTime.now();
@@ -49,6 +50,7 @@ public class QueueScheduler {
 
         for (Queue queue : queuesToExpire) {
             queue.updateStatus(TokenStatus.EXPIRED, Optional.of(LocalDateTime.now()));
+            queueService.save(queue);
         }
     }
 

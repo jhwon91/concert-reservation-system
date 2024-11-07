@@ -7,6 +7,7 @@ import com.hhplus.concert.domain.repository.QueueRepository;
 import com.hhplus.concert.domain.support.error.CoreException;
 import com.hhplus.concert.domain.support.error.ErrorType;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -25,7 +26,7 @@ public class QueueService {
     private static final int MAX_ACTIVE_USERS = 10; // 예시: 최대 활성 사용자 수
 
     @Autowired
-    public QueueService(QueueRepository queueRepository) {
+    public QueueService(@Qualifier("redisQueueRepository")QueueRepository queueRepository) {
         this.queueRepository = queueRepository;
     }
 

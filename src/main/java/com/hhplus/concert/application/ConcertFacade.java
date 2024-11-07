@@ -34,7 +34,9 @@ public class ConcertFacade {
      *  예약 가능한 날짜 조회
      */
     public ConcertResult.ConcertAvailableDates getAvailableConcertDates(ConcertCommand.AvailableConcertDates command) {
-        queueService.validationToken(command.token());
+        Queue queue = queueService.getQueueByToken(command.token());
+        queueService.validateActiveToken(queue);
+
         Concert concert = concertService.getConcert(command.concertId());
         List<ConcertDetails> concertDetailsList = concertDetailService.getAvailableConcertDates(concert.getId());
 
@@ -45,7 +47,9 @@ public class ConcertFacade {
      *  특정 날짜의 예약 가능한 좌석 조회
      */
     public ConcertResult.ConcertAvailableSeats getAvailableSeats(ConcertCommand.AvailableConcertSeats command) {
-        queueService.validationToken(command.token());
+        Queue queue = queueService.getQueueByToken(command.token());
+        queueService.validateActiveToken(queue);
+
         Concert concert = concertService.getConcert(command.concertId());
         ConcertDetails concertDetails = concertDetailService.getConcertDetail(command.concertDetailId());
         List<Seat> seats = seatService.getAvailableSeat(concertDetails.getId(), SeatStatus.AVAILABLE);
@@ -59,7 +63,8 @@ public class ConcertFacade {
     @Transactional
     public ConcertResult.ConcertReservation reserveSeat(ConcertCommand.ReserveSeat command){
         // 1. 토큰 검증
-        queueService.validationToken(command.token());
+        Queue queue = queueService.getQueueByToken(command.token());
+        queueService.validateActiveToken(queue);
 
         // 2. 콘서트와 좌석 정보 가져오기
         User user = userService.findUserById(command.userId());

@@ -76,8 +76,7 @@ public class QueueService {
     }
 
     //토큰 검증
-    public void validationToken(UUID token){
-        Queue queue = getQueueByToken(token);
+    public void validateActiveToken(Queue queue){
         queue.validateActiveStatus();
     }
 

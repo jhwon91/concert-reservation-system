@@ -34,7 +34,7 @@ public class Queue {
     private LocalDateTime lastRequestedAt; //토큰 사용 마지막 요청 시간
 
     @Column(name = "expired_at")
-    private LocalDateTime expiredAt; //토큰 사용 마지막 요청 시간
+    private LocalDateTime expiredAt; //토큰 만료 시간
 
 
     // 상태 검증 메서드

@@ -12,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
-import java.util.UUID;
 
 @Service
 public class PaymentFacade {
@@ -47,10 +46,10 @@ public class PaymentFacade {
      */
     @Transactional
     public PaymentResult.PaymentConcert paymentConcert(PaymentCommand.PaymentConcert command){
-        queueService.validationToken(command.token());
-
         Queue queue = queueService.getQueueByToken(command.token());
         User user = userService.findUserById(command.userId());
+
+        queueService.validateActiveToken(queue);
         queueService.validationUser(queue, user);
 
         Reservation reservation = reservationService.getReservation(command.reservationId());

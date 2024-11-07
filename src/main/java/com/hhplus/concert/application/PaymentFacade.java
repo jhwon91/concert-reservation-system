@@ -50,7 +50,7 @@ public class PaymentFacade {
         User user = userService.findUserById(command.userId());
 
         queueService.validateActiveToken(queue);
-        queueService.validationUser(queue, user);
+        queueService.validationUserOfToken(queue, user);
 
         Reservation reservation = reservationService.getReservation(command.reservationId());
         ConcertDetails concertDetails = concertDetailService.getConcertDetail(reservation.getConcertDetailId());
@@ -71,8 +71,7 @@ public class PaymentFacade {
 
         seatService.changeSeatStatus(seat,SeatStatus.RESERVED);
 
-        Queue changeQueueStatus = queueService.changeQueueStatus(queue, TokenStatus.EXPIRED, Optional.of(LocalDateTime.now()));
-        queueService.save(changeQueueStatus);
+        queueService.changeQueueStatus(queue, TokenStatus.EXPIRED, Optional.of(LocalDateTime.now()));
 
         return PaymentResult.PaymentConcert.from(paymentUser, seat);
     }

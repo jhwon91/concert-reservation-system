@@ -28,40 +28,31 @@ public class QueueService {
 
     @Transactional
     public Queue addToQueue(User user) {
-        //활성 사용자 확인
-        long activeCount = queueRepository.countByStatus(TokenStatus.ACTIVE);
+        List<Queue> userQueues = queueRepository.findByUserId(user.getId());
 
-        //사용자 아이디로 대기열의 상태 확인
-        List<Queue> userQueueStatus = queueRepository.findByUserId(user.getId());
-
-        //만료 시간이 null 있으면 상태값 반환(wait, active), 없으면 active 생성
-        Queue resultQueue = userQueueStatus.stream()
+        Optional<Queue> pendingQueue = userQueues.stream()
                 .filter(queue -> queue.getEnteredAt() == null)
-                .findFirst()
-                .orElse(null);
+                .findFirst();
 
-        if(resultQueue != null) { return resultQueue; }
+        if (pendingQueue.isPresent()) {
+            return pendingQueue.get();
+        }
 
-        Queue queue = Queue.builder()
-                .userId(user.getId())
-                .token(UUID.randomUUID())
-                .enteredAt(LocalDateTime.now())
-                .lastRequestedAt(LocalDateTime.now())
-                .status(activeCount < MAX_ACTIVE_USERS ? TokenStatus.ACTIVE : TokenStatus.WAIT)
-                .build();
+        TokenStatus status = shouldBeActive() ? TokenStatus.ACTIVE : TokenStatus.WAIT;
+        Queue newQueue = Queue.createNew(user.getId(), status);
 
-        queue = queueRepository.save(queue);
+        return queueRepository.save(newQueue);
+    }
 
-        return queue;
+    public boolean shouldBeActive() {
+        return queueRepository.countByStatus(TokenStatus.ACTIVE) < MAX_ACTIVE_USERS;
     }
 
     public int getQueuePosition(Queue queue) {
-        int position = 0;
-        if(queue.getStatus() == TokenStatus.WAIT){
-            // 대기열 번호 계산 (create 보다 작고 상태가 wait 인것) + 1
-            position = queueRepository.countByIdLessThanAndStatus(queue.getId(), queue.getStatus()) + 1;
+        if (!queue.isWaiting()) {
+            return 0;
         }
-        return position;
+        return queueRepository.countByIdLessThanAndStatus(queue.getId(), queue.getStatus()) + 1;
     }
 
     public Queue getQueueByToken(UUID token) {
@@ -69,27 +60,16 @@ public class QueueService {
                 .orElseThrow(() -> new CoreException(ErrorType.TOKEN_NOT_FOUND, token));
     }
 
-    public void validationUser(Queue queue, User user) {
-        if(queue.getUserId() != user.getId()){
-            throw new CoreException(ErrorType.USER_NOT_MATCHED_TOKEN, user.getId());
-        }
+    public void validationUserOfToken(Queue queue, User user) {
+        queue.validateUserMatch(user);
     }
 
-    //토큰 검증
     public void validateActiveToken(Queue queue){
         queue.validateActiveStatus();
     }
 
     public Queue changeQueueStatus(Queue queue, TokenStatus status, Optional<LocalDateTime> expiredAtOpt) {
-        return Queue.builder()
-                .id(queue.getId())
-                .token(queue.getToken())
-                .userId(queue.getUserId())
-                .status(status)
-                .enteredAt(queue.getEnteredAt())
-                .lastRequestedAt(queue.getLastRequestedAt())
-                .expiredAt(status == TokenStatus.EXPIRED ? expiredAtOpt.orElse(LocalDateTime.now()) : null)
-                .build();
+        return queue.updateStatus(status,expiredAtOpt);
     }
 
     public Queue save(Queue queue){

@@ -7,6 +7,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.UUID;
 
 @Entity
@@ -36,11 +37,40 @@ public class Queue {
     @Column(name = "expired_at")
     private LocalDateTime expiredAt; //토큰 만료 시간
 
+    public boolean isWaiting() {
+        return this.status == TokenStatus.WAIT;
+    }
 
-    // 상태 검증 메서드
+    public boolean isActive() {
+        return this.status == TokenStatus.ACTIVE;
+    }
+
     public void validateActiveStatus() {
-        if (this.status != TokenStatus.ACTIVE) {
+        if (!isActive()) {
             throw new CoreException(ErrorType.TOKEN_NOT_ACTIVE, this.token);
         }
+    }
+
+    public void validateUserMatch(User user) {
+        if (this.userId != user.getId()) {
+            throw new CoreException(ErrorType.USER_NOT_MATCHED_TOKEN, user.getId());
+        }
+    }
+
+    public Queue updateStatus(TokenStatus newStatus, Optional<LocalDateTime> expiredAt) {
+        this.status = newStatus;
+        this.expiredAt = newStatus == TokenStatus.EXPIRED ? expiredAt.orElse(LocalDateTime.now()) : null;
+        return this;
+    }
+
+    public static Queue createNew(Long userId, TokenStatus status) {
+        LocalDateTime now = LocalDateTime.now();
+        return Queue.builder()
+                .userId(userId)
+                .token(UUID.randomUUID())
+                .status(status)
+                .enteredAt(now)
+                .lastRequestedAt(now)
+                .build();
     }
 }

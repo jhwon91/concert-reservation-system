@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -22,4 +23,9 @@ public interface JpaQueueRepository extends JpaRepository<Queue, Long> {
     Optional<Queue> findByToken(UUID Token);
     int countByIdLessThanAndStatus(Long id, TokenStatus status);
     boolean existsByToken(UUID token);
+    List<Queue> findByStatusOrderByCreatedAtAsc(TokenStatus status, Pageable pageable);
+
+    @Query("SELECT q FROM Queue q WHERE q.status = :status AND q.lastRequestedAt < :expirationTime")
+    List<Queue> findActiveQueuesToExpire(@Param("status") TokenStatus status, @Param("expirationTime") LocalDateTime expirationTime);
+
 }

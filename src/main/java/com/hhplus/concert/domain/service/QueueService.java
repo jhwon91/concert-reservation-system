@@ -7,8 +7,12 @@ import com.hhplus.concert.domain.repository.QueueRepository;
 import com.hhplus.concert.domain.support.error.CoreException;
 import com.hhplus.concert.domain.support.error.ErrorType;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -48,6 +52,10 @@ public class QueueService {
         return queueRepository.countByStatus(TokenStatus.ACTIVE) < MAX_ACTIVE_USERS;
     }
 
+    public long countActiveUsers() {
+        return queueRepository.countByStatus(TokenStatus.ACTIVE);
+    }
+
     public int getQueuePosition(Queue queue) {
         if (!queue.isWaiting()) {
             return 0;
@@ -72,7 +80,19 @@ public class QueueService {
         return queue.updateStatus(status,expiredAtOpt);
     }
 
+    public int getMaxActiveUsers() {
+        return MAX_ACTIVE_USERS;
+    }
     public Queue save(Queue queue){
         return queueRepository.save(queue);
+    }
+
+    public List<Queue> findNextWaitingQueues(long limit) {
+        Pageable pageable = PageRequest.of(0,  (int) limit, Sort.by("created_at").ascending());
+        return queueRepository.findByStatusOrderByCreatedAtAsc(TokenStatus.WAIT, pageable);
+    }
+
+    public List<Queue> findActiveQueuesToExpire(TokenStatus status, LocalDateTime expirationTime) {
+        return queueRepository.findActiveQueuesToExpire(status, expirationTime);
     }
 }

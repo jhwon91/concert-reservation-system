@@ -5,6 +5,9 @@ import com.hhplus.concert.domain.support.error.CoreException;
 import com.hhplus.concert.domain.support.error.ErrorType;
 import jakarta.persistence.*;
 import lombok.*;
+import org.antlr.v4.runtime.Token;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -37,6 +40,14 @@ public class Queue {
     @Column(name = "expired_at")
     private LocalDateTime expiredAt; //토큰 만료 시간
 
+    @CreatedDate
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
+
+    @LastModifiedDate
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+
     public boolean isWaiting() {
         return this.status == TokenStatus.WAIT;
     }
@@ -60,6 +71,10 @@ public class Queue {
     public Queue updateStatus(TokenStatus newStatus, Optional<LocalDateTime> expiredAt) {
         this.status = newStatus;
         this.expiredAt = newStatus == TokenStatus.EXPIRED ? expiredAt.orElse(LocalDateTime.now()) : null;
+
+        this.enteredAt = newStatus == TokenStatus.ACTIVE ? LocalDateTime.now() : this.enteredAt;
+        this.lastRequestedAt = newStatus == TokenStatus.ACTIVE ? LocalDateTime.now() : this.lastRequestedAt;
+
         return this;
     }
 
@@ -69,8 +84,6 @@ public class Queue {
                 .userId(userId)
                 .token(UUID.randomUUID())
                 .status(status)
-                .enteredAt(now)
-                .lastRequestedAt(now)
                 .build();
     }
 }

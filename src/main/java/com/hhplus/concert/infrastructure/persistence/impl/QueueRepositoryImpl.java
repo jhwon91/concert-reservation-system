@@ -5,6 +5,7 @@ import com.hhplus.concert.domain.enums.TokenStatus;
 import com.hhplus.concert.domain.repository.QueueRepository;
 import com.hhplus.concert.infrastructure.persistence.JpaQueueRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -51,6 +52,16 @@ public class QueueRepositoryImpl implements QueueRepository {
     @Override
     public boolean exists(UUID token) {
         return jpaQueueRepository.existsByToken(token);
+    }
+
+    @Override
+    public List<Queue> findByStatusOrderByCreatedAtAsc(TokenStatus status, Pageable pageable) {
+        return jpaQueueRepository.findByStatusOrderByCreatedAtAsc(status,pageable);
+    }
+
+    @Override
+    public List<Queue> findActiveQueuesToExpire(TokenStatus status, LocalDateTime expirationTime) {
+        return jpaQueueRepository.findActiveQueuesToExpire(status, expirationTime);
     }
 
 }

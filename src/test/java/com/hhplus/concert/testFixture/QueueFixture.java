@@ -4,6 +4,7 @@ import com.hhplus.concert.domain.entity.User;
 import com.hhplus.concert.domain.enums.TokenStatus;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -83,5 +84,23 @@ public class QueueFixture {
                 .build();
 
         return List.of(queue1, queue2, queue3);
+    }
+
+    public static List<Queue> WaitQueueList (){
+        List<Queue> queueList = new ArrayList<>();
+
+        for(long i = 1; i <=10; i++){
+            Queue queue =  Queue.builder()
+                    .id(i)
+                    .userId(i)
+                    .token(UUID.randomUUID())
+                    .status(TokenStatus.WAIT)
+                    .createdAt(LocalDateTime.now().minusMinutes(i))
+                    .build();
+
+            queueList.add(queue);
+        }
+
+        return queueList;
     }
 }

@@ -1,8 +1,10 @@
 package com.hhplus.concert.domain.repository;
 
 import com.hhplus.concert.domain.entity.Queue;
-import com.hhplus.concert.domain.entity.User;
 import com.hhplus.concert.domain.enums.TokenStatus;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.repository.query.Param;
+
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -16,4 +18,6 @@ public interface QueueRepository {
     Optional<Queue> findByToken(UUID token);
     int countByIdLessThanAndStatus(Long id, TokenStatus status);
     boolean exists (UUID token);
+    List<Queue> findByStatusOrderByCreatedAtAsc(TokenStatus status, Pageable pageable);
+    List<Queue> findActiveQueuesToExpire(TokenStatus status, LocalDateTime expirationTime);
 }

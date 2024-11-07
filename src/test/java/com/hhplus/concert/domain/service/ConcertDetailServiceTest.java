@@ -80,6 +80,7 @@ class ConcertDetailServiceTest {
         ConcertDetails result = concertDetailService.getConcertDetail(1L);
 
         assertNotNull(result);
+        assertEquals(detail1, result);
         assertEquals(concert.getId(), result.getId());
         assertEquals(10L, result.getMaxSeat());
         assertEquals(100L, result.getPrice());

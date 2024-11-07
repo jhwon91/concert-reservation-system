@@ -31,7 +31,7 @@ public class QueueService {
         List<Queue> userQueues = queueRepository.findByUserId(user.getId());
 
         Optional<Queue> pendingQueue = userQueues.stream()
-                .filter(queue -> queue.getEnteredAt() == null)
+                .filter(queue -> queue.getExpiredAt() == null)
                 .findFirst();
 
         if (pendingQueue.isPresent()) {
@@ -44,7 +44,7 @@ public class QueueService {
         return queueRepository.save(newQueue);
     }
 
-    public boolean shouldBeActive() {
+    private boolean shouldBeActive() {
         return queueRepository.countByStatus(TokenStatus.ACTIVE) < MAX_ACTIVE_USERS;
     }
 

@@ -61,7 +61,7 @@ public class QueueService {
         if (!queue.isWaiting()) {
             return 0;
         }
-        return queueRepository.countByIdLessThanAndStatus(queue.getId(), queue.getStatus()) + 1;
+        return queueRepository.countByIdLessThanAndStatus(queue.getId(), queue.getStatus());
     }
 
     public Queue getQueueByToken(UUID token) {
@@ -93,7 +93,9 @@ public class QueueService {
         return queueRepository.findByStatus(TokenStatus.WAIT, pageable);
     }
 
-    public List<Queue> findActiveQueuesToExpire(TokenStatus status, LocalDateTime expirationTime) {
-        return queueRepository.findActiveQueuesToExpire(status, expirationTime);
+    public List<Queue> findActiveQueues() {
+        Pageable pageable = PageRequest.of(0,  MAX_ACTIVE_USERS, Sort.by("createdAt").ascending());
+        return queueRepository.findByStatus(TokenStatus.ACTIVE, pageable);
     }
+
 }

@@ -25,11 +25,5 @@ public interface JpaQueueRepository extends JpaRepository<Queue, Long> {
     int countByIdLessThanAndStatus(Long id, TokenStatus status);
     boolean existsByToken(UUID token);
 
-//    @Query("SELECT q FROM Queue q WHERE q.status = :status ORDER BY q.createdAt ASC")
-//    List<Queue> findByStatusOrderByCreatedAtAsc(@Param("status") TokenStatus status, Pageable pageable);
     List<Queue> findByStatus(TokenStatus status, Pageable pageable);
-
-    @Query("SELECT q FROM Queue q WHERE q.status = :status AND q.lastRequestedAt < :expirationTime")
-    List<Queue> findActiveQueuesToExpire(@Param("status") TokenStatus status, @Param("expirationTime") LocalDateTime expirationTime);
-
 }

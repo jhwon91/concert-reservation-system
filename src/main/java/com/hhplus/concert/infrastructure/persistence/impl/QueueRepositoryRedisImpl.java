@@ -1,145 +1,149 @@
 package com.hhplus.concert.infrastructure.persistence.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hhplus.concert.domain.entity.Queue;
 import com.hhplus.concert.domain.enums.TokenStatus;
 import com.hhplus.concert.domain.repository.QueueRepository;
-import com.hhplus.concert.infrastructure.persistence.JpaQueueRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
+import java.lang.reflect.Field;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Repository
 @Qualifier("redisQueueRepository")
 public class QueueRepositoryRedisImpl implements QueueRepository {
-    private final RedisTemplate<String, Object> redisTemplate;
-    private static final String WAITING_QUEUE_KEY = "waitingQueue";
-    private static final String ACTIVE_QUEUE_KEY_PREFIX = "activeUser:";
-    private static final long ACTIVE_USER_TTL = 60L; // 1분
-    private final JpaQueueRepository jpaQueueRepository;
+    private final RedisTemplate<String, String> redisTemplate;
+    private final ObjectMapper objectMapper;
+
+    private static final String QUEUE_KEY = "queue:%s";
+    private static final String USER_QUEUE_KEY = "user:queue:%d";
+    private static final String STATUS_QUEUE_KEY = "status:queue:%s";
+    private static final String QUEUE_ID_COUNTER = "queue:id:counter";
 
     @Autowired
-    public QueueRepositoryRedisImpl(RedisTemplate<String, Object> redisTemplate, JpaQueueRepository jpaQueueRepository) {
+    public QueueRepositoryRedisImpl(RedisTemplate<String, String> redisTemplate, ObjectMapper objectMapper) {
         this.redisTemplate = redisTemplate;
-        this.jpaQueueRepository = jpaQueueRepository;
+        this.objectMapper = objectMapper;
+    }
+    private Long generateId() {
+        Long id = redisTemplate.opsForValue().increment(QUEUE_ID_COUNTER);
+        if (id == null) {
+            throw new RuntimeException("Failed to generate queue ID");
+        }
+        return id;
     }
 
     @Override
-    @Transactional
     public Queue save(Queue queue) {
-        // 데이터베이스에 저장
-        Queue savedQueue = jpaQueueRepository.save(queue);
+        try {
 
-        // Redis에 저장
-        if (queue.getStatus() == TokenStatus.WAIT) {
-            addToWaitingQueue(queue);
-        } else if (queue.getStatus() == TokenStatus.ACTIVE) {
-            moveToActiveQueue(queue);
+            if (queue.getId() == null) {
+                Long newId = generateId();
+                Field idField = Queue.class.getDeclaredField("id");
+                idField.setAccessible(true);
+                idField.set(queue, newId);
+            }
+
+            if (queue.getCreatedAt() == null) {
+                queue.setCreateAt();
+            }
+
+            String queueJson = objectMapper.writeValueAsString(queue);
+
+            String queueKey = String.format(QUEUE_KEY, queue.getToken());
+            String userQueueKey = String.format(USER_QUEUE_KEY, queue.getUserId());
+            String statusQueueKey = String.format(STATUS_QUEUE_KEY, queue.getStatus());
+
+            redisTemplate.opsForValue().set(queueKey, queueJson);
+            redisTemplate.opsForSet().add(userQueueKey, queue.getToken().toString());
+            redisTemplate.opsForZSet().add(statusQueueKey, queue.getToken().toString(), queue.getId());
+
+            return queue;
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException( e);
+        } catch (NoSuchFieldException e) {
+            throw new RuntimeException(e);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public List<Queue> findByUserId(long id) {
+        String userQueueKey = String.format(USER_QUEUE_KEY, id);
+        Set<String> tokenSet = redisTemplate.opsForSet().members(userQueueKey);
+
+        if (tokenSet == null || tokenSet.isEmpty()) {
+            return Collections.emptyList();
         }
 
-        String redisKey = "queue:token:" + queue.getToken().toString();
-        redisTemplate.opsForValue().set(redisKey, queue, ACTIVE_USER_TTL, TimeUnit.SECONDS);
-
-
-        return savedQueue;
-    }
-
-    @Override
-    public List<Queue> findByUserId(long userId) {
-        return jpaQueueRepository.findByUserId(userId);
+        return tokenSet.stream()
+                .map(token -> findByToken(UUID.fromString(token)))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toList());
     }
 
     @Override
     public long countByStatus(TokenStatus status) {
-        if (status == TokenStatus.WAIT) {
-            // Redis의 대기열 크기 반환
-            ZSetOperations<String, Object> zSetOps = redisTemplate.opsForZSet();
-            Long size = zSetOps.size(WAITING_QUEUE_KEY);
-            return size != null ? size : 0;
-        } else {
-            // 데이터베이스에서 상태별 개수 조회
-            return jpaQueueRepository.countByStatusWithLock(status);
-        }
+        String statusQueueKey = String.format(STATUS_QUEUE_KEY, status);
+        Long size = redisTemplate.opsForZSet().size(statusQueueKey);
+        return size != null ? size : 0;
     }
 
     @Override
     public Optional<Queue> findByToken(UUID token) {
-        // Redis에서 조회
-        String redisKey = "queue:token:" + token.toString();
-        Queue queue = (Queue) redisTemplate.opsForValue().get(redisKey);
+        String queueKey = String.format(QUEUE_KEY, token);
+        String queueJson = redisTemplate.opsForValue().get(queueKey);
 
-        if (queue != null) {
-            return Optional.of(queue);
+        if (queueJson == null) {
+            return Optional.empty();
         }
 
-        // 데이터베이스에서 조회
-        Optional<Queue> dbQueue = jpaQueueRepository.findByToken(token);
-
-        // Redis에 캐싱
-        dbQueue.ifPresent(q -> redisTemplate.opsForValue().set(redisKey, q));
-
-        return dbQueue;
+        try {
+            Queue queue = objectMapper.readValue(queueJson, Queue.class);
+            return Optional.of(queue);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("Queue deserialization failed", e);
+        }
     }
 
     @Override
     public int countByIdLessThanAndStatus(Long id, TokenStatus status) {
-        return jpaQueueRepository.countByIdLessThanAndStatus(id, status);
+        String statusQueueKey = String.format(STATUS_QUEUE_KEY, status);
+        Long count = redisTemplate.opsForZSet().count(statusQueueKey, 0, id);
+        return count != null ? count.intValue() : 0;
     }
 
     @Override
     public boolean exists(UUID token) {
-        return jpaQueueRepository.existsByToken(token);
+        String queueKey = String.format(QUEUE_KEY, token);
+        return Boolean.TRUE.equals(redisTemplate.hasKey(queueKey));
     }
 
     @Override
     public List<Queue> findByStatus(TokenStatus status, Pageable pageable) {
-        if (status == TokenStatus.WAIT) {
-            // Redis에서 대기열 조회
-            ZSetOperations<String, Object> zSetOps = redisTemplate.opsForZSet();
-            Set<Object> members = zSetOps.range(WAITING_QUEUE_KEY, pageable.getOffset(), pageable.getOffset() + pageable.getPageSize() - 1);
-            if (members != null) {
-                return members.stream()
-                        .map(member -> {
-                            // 필요한 경우 데이터베이스에서 추가 정보 조회
-                            Long userId = Long.parseLong(member.toString());
-                            return jpaQueueRepository.findByUserId(userId).stream().findFirst().orElse(null);
-                        })
-                        .filter(Objects::nonNull)
-                        .collect(Collectors.toList());
-            }
+        String statusQueueKey = String.format(STATUS_QUEUE_KEY, status);
+        Set<String> tokens = redisTemplate.opsForZSet().range(
+                statusQueueKey,
+                pageable.getOffset(),
+                pageable.getOffset() + pageable.getPageSize() - 1
+        );
+
+        if (tokens == null || tokens.isEmpty()) {
             return Collections.emptyList();
-        } else {
-            // 데이터베이스에서 조회
-            return jpaQueueRepository.findByStatus(status, pageable);
         }
-    }
 
-    @Override
-    public List<Queue> findActiveQueuesToExpire(TokenStatus status, LocalDateTime expirationTime) {
-        return jpaQueueRepository.findActiveQueuesToExpire(status, expirationTime);
-    }
-
-    private void addToWaitingQueue(Queue queue) {
-        ZSetOperations<String, Object> zSetOps = redisTemplate.opsForZSet();
-        double score = System.currentTimeMillis();
-        zSetOps.add(WAITING_QUEUE_KEY, queue.getUserId().toString(), score);
-    }
-
-    private void moveToActiveQueue(Queue queue) {
-        // 대기열에서 제거
-        ZSetOperations<String, Object> zSetOps = redisTemplate.opsForZSet();
-        zSetOps.remove(WAITING_QUEUE_KEY, queue.getUserId().toString());
-
-        // 활성 큐에 추가 (TTL 설정)
-        String activeUserKey = ACTIVE_QUEUE_KEY_PREFIX + queue.getUserId();
-        redisTemplate.opsForValue().set(activeUserKey, "active", ACTIVE_USER_TTL, TimeUnit.SECONDS);
+        return tokens.stream()
+                .map(token -> findByToken(UUID.fromString(token)))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toList());
     }
 }

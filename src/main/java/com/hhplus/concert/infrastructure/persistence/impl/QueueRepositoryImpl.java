@@ -48,7 +48,7 @@ public class QueueRepositoryImpl implements QueueRepository {
 
     @Override
     public int countByIdLessThanAndStatus(Long id, TokenStatus status) {
-        return jpaQueueRepository.countByIdLessThanAndStatus(id, status);
+        return jpaQueueRepository.countByIdLessThanAndStatus(id, status) + 1;
     }
 
     @Override
@@ -60,10 +60,4 @@ public class QueueRepositoryImpl implements QueueRepository {
     public List<Queue> findByStatus(TokenStatus status, Pageable pageable) {
         return jpaQueueRepository.findByStatus(status,pageable);
     }
-
-    @Override
-    public List<Queue> findActiveQueuesToExpire(TokenStatus status, LocalDateTime expirationTime) {
-        return jpaQueueRepository.findActiveQueuesToExpire(status, expirationTime);
-    }
-
 }

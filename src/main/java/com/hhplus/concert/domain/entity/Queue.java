@@ -1,5 +1,6 @@
 package com.hhplus.concert.domain.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.hhplus.concert.domain.enums.TokenStatus;
 import com.hhplus.concert.domain.support.error.CoreException;
 import com.hhplus.concert.domain.support.error.ErrorType;
@@ -14,6 +15,7 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 @Entity
 @Table(name= "queue")
 @Getter
@@ -84,10 +86,20 @@ public class Queue {
 
     public static Queue createNew(Long userId, TokenStatus status) {
         LocalDateTime now = LocalDateTime.now();
-        return Queue.builder()
+
+        Queue.QueueBuilder queue = Queue.builder()
                 .userId(userId)
                 .token(UUID.randomUUID())
-                .status(status)
-                .build();
+                .status(status);
+
+        if (status == TokenStatus.ACTIVE) {
+            queue.enteredAt(now).lastRequestedAt(now);
+        }
+
+        return queue.build();
+    }
+
+    public void setCreateAt(){
+        this.createdAt = LocalDateTime.now();
     }
 }

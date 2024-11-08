@@ -1,7 +1,6 @@
 package com.hhplus.concert.domain.support.scheduler;
 
 import com.hhplus.concert.domain.entity.Queue;
-import com.hhplus.concert.domain.entity.Reservation;
 import com.hhplus.concert.domain.enums.TokenStatus;
 import com.hhplus.concert.domain.service.QueueService;
 import com.hhplus.concert.domain.service.UserService;
@@ -9,6 +8,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -41,16 +41,20 @@ public class QueueScheduler {
         }
     }
 
-    @Scheduled(cron = "*/1 * * * * *", zone = "Asia/Seoul")
+
+    @Scheduled(cron = "* 1 * * * *", zone = "Asia/Seoul")
     @Transactional
     public void expiredQueue () {
         LocalDateTime expirationTime = LocalDateTime.now();
+        List<Queue> activeQueues = queueService.findActiveQueues();
 
-        List<Queue> queuesToExpire = queueService.findActiveQueuesToExpire(TokenStatus.ACTIVE, expirationTime);
+        for (Queue queue : activeQueues) {
+//            if (Duration.between(queue.getLastRequestedAt(), expirationTime).toMinutes() >= 5) {
+            if (Duration.between(queue.getLastRequestedAt(), expirationTime).toSeconds() >= 10) {
+                queue.updateStatus(TokenStatus.EXPIRED, Optional.of(LocalDateTime.now()));
+                queueService.save(queue);
+            }
 
-        for (Queue queue : queuesToExpire) {
-            queue.updateStatus(TokenStatus.EXPIRED, Optional.of(LocalDateTime.now()));
-            queueService.save(queue);
         }
     }
 

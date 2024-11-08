@@ -127,6 +127,7 @@ class TokenFacadeTest {
 
         Thread.sleep(10000);
         queueScheduler.expiredQueue();
+
         queueScheduler.activeQueue();
 
         assertEquals(10, queueService.countActiveUsers());  // active 상태 여전히 10명 유지

@@ -5,18 +5,15 @@ import com.hhplus.concert.domain.enums.TokenStatus;
 import com.hhplus.concert.domain.repository.QueueRepository;
 import com.hhplus.concert.infrastructure.persistence.JpaQueueRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-@Qualifier("jpaQueueRepository")
 public class QueueRepositoryImpl implements QueueRepository {
     private final JpaQueueRepository jpaQueueRepository;
 
@@ -37,6 +34,7 @@ public class QueueRepositoryImpl implements QueueRepository {
     }
 
     @Override
+    @Transactional
     public long countByStatus(TokenStatus status) {
         return jpaQueueRepository.countByStatusWithLock(status);
     }

@@ -6,7 +6,7 @@ import com.hhplus.concert.domain.entity.Queue;
 import com.hhplus.concert.domain.enums.TokenStatus;
 import com.hhplus.concert.domain.repository.QueueRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Primary;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
@@ -16,7 +16,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Repository
-@Qualifier("redisQueueRepository")
+@Primary
 public class QueueRepositoryRedisImpl implements QueueRepository {
     private final RedisTemplate<String, String> redisTemplate;
     private final ObjectMapper objectMapper;

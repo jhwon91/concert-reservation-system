@@ -26,7 +26,7 @@ public class QueueService {
     private static final int MAX_ACTIVE_USERS = 10; // 예시: 최대 활성 사용자 수
 
     @Autowired
-    public QueueService(@Qualifier("redisQueueRepository")QueueRepository queueRepository) {
+    public QueueService(QueueRepository queueRepository) {
         this.queueRepository = queueRepository;
     }
 

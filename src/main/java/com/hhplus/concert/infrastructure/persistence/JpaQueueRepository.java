@@ -3,6 +3,7 @@ package com.hhplus.concert.infrastructure.persistence;
 import com.hhplus.concert.domain.entity.Queue;
 import com.hhplus.concert.domain.enums.TokenStatus;
 import jakarta.persistence.LockModeType;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
@@ -23,9 +24,6 @@ public interface JpaQueueRepository extends JpaRepository<Queue, Long> {
     Optional<Queue> findByToken(UUID Token);
     int countByIdLessThanAndStatus(Long id, TokenStatus status);
     boolean existsByToken(UUID token);
-    List<Queue> findByStatusOrderByCreatedAtAsc(TokenStatus status, Pageable pageable);
 
-    @Query("SELECT q FROM Queue q WHERE q.status = :status AND q.lastRequestedAt < :expirationTime")
-    List<Queue> findActiveQueuesToExpire(@Param("status") TokenStatus status, @Param("expirationTime") LocalDateTime expirationTime);
-
+    List<Queue> findByStatus(TokenStatus status, Pageable pageable);
 }

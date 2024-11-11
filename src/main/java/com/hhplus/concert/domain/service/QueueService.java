@@ -7,6 +7,7 @@ import com.hhplus.concert.domain.repository.QueueRepository;
 import com.hhplus.concert.domain.support.error.CoreException;
 import com.hhplus.concert.domain.support.error.ErrorType;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -60,7 +61,7 @@ public class QueueService {
         if (!queue.isWaiting()) {
             return 0;
         }
-        return queueRepository.countByIdLessThanAndStatus(queue.getId(), queue.getStatus()) + 1;
+        return queueRepository.countByIdLessThanAndStatus(queue.getId(), queue.getStatus());
     }
 
     public Queue getQueueByToken(UUID token) {
@@ -88,11 +89,13 @@ public class QueueService {
     }
 
     public List<Queue> findNextWaitingQueues(long limit) {
-        Pageable pageable = PageRequest.of(0,  (int) limit, Sort.by("created_at").ascending());
-        return queueRepository.findByStatusOrderByCreatedAtAsc(TokenStatus.WAIT, pageable);
+        Pageable pageable = PageRequest.of(0,  (int) limit, Sort.by("createdAt").ascending());
+        return queueRepository.findByStatus(TokenStatus.WAIT, pageable);
     }
 
-    public List<Queue> findActiveQueuesToExpire(TokenStatus status, LocalDateTime expirationTime) {
-        return queueRepository.findActiveQueuesToExpire(status, expirationTime);
+    public List<Queue> findActiveQueues() {
+        Pageable pageable = PageRequest.of(0,  MAX_ACTIVE_USERS, Sort.by("createdAt").ascending());
+        return queueRepository.findByStatus(TokenStatus.ACTIVE, pageable);
     }
+
 }

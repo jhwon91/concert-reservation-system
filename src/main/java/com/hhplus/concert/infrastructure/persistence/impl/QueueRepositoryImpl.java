@@ -9,7 +9,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -35,6 +34,7 @@ public class QueueRepositoryImpl implements QueueRepository {
     }
 
     @Override
+    @Transactional
     public long countByStatus(TokenStatus status) {
         return jpaQueueRepository.countByStatusWithLock(status);
     }
@@ -46,7 +46,7 @@ public class QueueRepositoryImpl implements QueueRepository {
 
     @Override
     public int countByIdLessThanAndStatus(Long id, TokenStatus status) {
-        return jpaQueueRepository.countByIdLessThanAndStatus(id, status);
+        return jpaQueueRepository.countByIdLessThanAndStatus(id, status) + 1;
     }
 
     @Override
@@ -55,13 +55,7 @@ public class QueueRepositoryImpl implements QueueRepository {
     }
 
     @Override
-    public List<Queue> findByStatusOrderByCreatedAtAsc(TokenStatus status, Pageable pageable) {
-        return jpaQueueRepository.findByStatusOrderByCreatedAtAsc(status,pageable);
+    public List<Queue> findByStatus(TokenStatus status, Pageable pageable) {
+        return jpaQueueRepository.findByStatus(status,pageable);
     }
-
-    @Override
-    public List<Queue> findActiveQueuesToExpire(TokenStatus status, LocalDateTime expirationTime) {
-        return jpaQueueRepository.findActiveQueuesToExpire(status, expirationTime);
-    }
-
 }

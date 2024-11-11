@@ -4,4 +4,5 @@ import com.hhplus.concert.domain.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface JpaUserRepository extends JpaRepository<User, Long> {
+    User deleteUserById(long id);
 }

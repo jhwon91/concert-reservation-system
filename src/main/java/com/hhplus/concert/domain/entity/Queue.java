@@ -1,5 +1,6 @@
 package com.hhplus.concert.domain.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.hhplus.concert.domain.enums.TokenStatus;
 import com.hhplus.concert.domain.support.error.CoreException;
 import com.hhplus.concert.domain.support.error.ErrorType;
@@ -8,17 +9,20 @@ import lombok.*;
 import org.antlr.v4.runtime.Token;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 @Entity
 @Table(name= "queue")
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@EntityListeners(AuditingEntityListener.class)
 public class Queue {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -40,12 +44,12 @@ public class Queue {
     @Column(name = "expired_at")
     private LocalDateTime expiredAt; //토큰 만료 시간
 
-    @CreatedDate
     @Column(name = "created_at")
+    @CreatedDate
     private LocalDateTime createdAt;
 
-    @LastModifiedDate
     @Column(name = "updated_at")
+    @LastModifiedDate
     private LocalDateTime updatedAt;
 
     public boolean isWaiting() {
@@ -72,18 +76,30 @@ public class Queue {
         this.status = newStatus;
         this.expiredAt = newStatus == TokenStatus.EXPIRED ? expiredAt.orElse(LocalDateTime.now()) : null;
 
-        this.enteredAt = newStatus == TokenStatus.ACTIVE ? LocalDateTime.now() : this.enteredAt;
-        this.lastRequestedAt = newStatus == TokenStatus.ACTIVE ? LocalDateTime.now() : this.lastRequestedAt;
+        if (newStatus == TokenStatus.ACTIVE) {
+            this.enteredAt = LocalDateTime.now();
+            this.lastRequestedAt = LocalDateTime.now();
+        }
 
         return this;
     }
 
     public static Queue createNew(Long userId, TokenStatus status) {
         LocalDateTime now = LocalDateTime.now();
-        return Queue.builder()
+
+        Queue.QueueBuilder queue = Queue.builder()
                 .userId(userId)
                 .token(UUID.randomUUID())
-                .status(status)
-                .build();
+                .status(status);
+
+        if (status == TokenStatus.ACTIVE) {
+            queue.enteredAt(now).lastRequestedAt(now);
+        }
+
+        return queue.build();
+    }
+
+    public void setCreateAt(){
+        this.createdAt = LocalDateTime.now();
     }
 }

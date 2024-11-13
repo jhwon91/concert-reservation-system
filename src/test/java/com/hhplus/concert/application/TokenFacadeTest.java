@@ -2,22 +2,17 @@ package com.hhplus.concert.application;
 
 import com.hhplus.concert.application.dto.TokenCommand;
 import com.hhplus.concert.application.dto.TokenResult;
-import com.hhplus.concert.domain.entity.Queue;
 import com.hhplus.concert.domain.entity.User;
 import com.hhplus.concert.domain.enums.TokenStatus;
 import com.hhplus.concert.domain.service.QueueService;
 import com.hhplus.concert.domain.service.UserService;
 import com.hhplus.concert.domain.support.scheduler.QueueScheduler;
 import com.hhplus.concert.testFixture.UserFixture;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.RedisTemplate;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -32,9 +27,6 @@ class TokenFacadeTest {
     private TokenFacade tokenFacade;
 
     @Autowired
-    private  UserService userService;
-
-    @Autowired
     private QueueService queueService;
 
     @Autowired
@@ -45,8 +37,8 @@ class TokenFacadeTest {
 
     private static List<User> testUser = new ArrayList<>();
 
-    @BeforeAll
-    static void setup(@Autowired UserService userService) {
+    @BeforeEach
+    void setup(@Autowired UserService userService) {
         List<User> users = UserFixture.createdUserList(11L);
 
         for(User user:users){

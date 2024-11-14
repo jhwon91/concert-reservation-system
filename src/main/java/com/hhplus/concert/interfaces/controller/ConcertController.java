@@ -1,14 +1,10 @@
 package com.hhplus.concert.interfaces.controller;
 
 import com.hhplus.concert.application.ConcertFacade;
-import com.hhplus.concert.application.dto.ConcertCommand;
 import com.hhplus.concert.interfaces.dto.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -36,9 +32,19 @@ public class ConcertController {
      * 4. 특정 날짜의 예약 가능한 좌석 조회
      */
     @GetMapping("/reservations/seats")
-    public ConcertDTO.SeatResponseDTO getAvailableSeats(ConcertDTO.ConcertSeatsRequestDTO request) {
+    public ConcertDTO.SeatResponseDTO getAvailableSeats(
+            @RequestHeader("Authorization") UUID token,
+            @RequestParam("concert_id") Long concertId,
+            @RequestParam("concert_detail_id") Long concertDetailId
+    ) {
         return ConcertDTO.SeatResponseDTO.from(
-                concertFacade.getAvailableSeats(request.toCommand())
+                concertFacade.getAvailableSeats(
+                        ConcertDTO.ConcertSeatsRequestDTO.builder()
+                                .token(token)
+                                .concertId(concertId)
+                                .concertDetailId(concertDetailId)
+                                .build().toCommand()
+                )
         );
     }
 

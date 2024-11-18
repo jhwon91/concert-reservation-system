@@ -128,10 +128,11 @@ public class ConcertDTO {
         }
     }
 
+    @Builder
     public record ConcertSeatsRequestDTO(
-            @RequestHeader("Authorization") UUID token,
-            @RequestParam("concert_id") Long concertId,
-            @RequestParam("concert_detail_id") Long concertDetailId
+            UUID token,
+            Long concertId,
+            Long concertDetailId
     ) {
         public ConcertCommand.AvailableConcertSeats toCommand() {
             return ConcertCommand.AvailableConcertSeats.builder()

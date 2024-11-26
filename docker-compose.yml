@@ -1,0 +1,48 @@
+version : '3.8'
+
+services:
+  # Zookeeper 1 서비스 설정입니다.
+  zookeeper1:
+    image: 'bitnami/zookeeper'
+    restart: always
+    container_name: 'zookeeper1'
+    ports:
+      - '2181:2181'  # 호스트와 컨테이너 간의 포트 포워딩: 호스트의 2181 포트와 컨테이너의 2181 포트 간에 통신이 이루어집니다.
+    environment:
+      - ZOO_SERVER_ID=1  # Zookeeper 서버 ID
+      # 리더 선출 및 쿼럼 통신을 위한 서버 ID, 호스트명 및 포트를 지정한 Zookeeper 앙상블 구성
+      - ZOO_SERVERS=zookeeper1:2888:3888::1
+      - ALLOW_ANONYMOUS_LOGIN=yes  # 익명 로그인 허용 설정
+    user: root  # 컨테이너 실행 시 사용할 사용자
+  # Kafka 브로커 1
+  kafka1:
+    image: 'bitnami/kafka'
+    container_name: 'kafka1'
+    ports:
+      - '9092:9092'    # 호스트 포트와 컨테이너 포트 간의 포트 포워딩 설정: 호스트의 9092 포트와 컨테이너의 9092 포트 간에 통신이 이루어짐
+      - '8083:8083'
+    environment:
+      - KAFKA_BROKER_ID=1    # Kafka 브로커 ID
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,EXTERNAL://:8083      # Kafka 브로커 리스너 설정 (Kafka 내부에서 접속할 정보)
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka1:9092,EXTERNAL://127.0.0.1:8083      # 외부에서 접근 가능한 Kafka 브로커 주소1
+      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper1:2181  #ZooKeeper의 주소를 KAFKA_CFG_ZOOKEEPER_CONNECT 환경 변수에 설정
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
+      - ALLOW_PLAINTEXT_LISTENER=yes    # PLAINTEXT 리스너 허용 설정 (yes : 보안 없이 접속 가능)
+      - KAFKA_HEAP_OPTS=-Xmx1G -Xms1G    # Kafka JVM 힙 메모리 설정
+      - KAFKA_ENABLE_KRAFT=no    # Kafka KRaft 활성화 여부 설정 (no : Zookeeper 사용/ yes : Zookeeper 사용x)
+      - KAFKA_CFG_OFFSETS_TOPIC_REPLICATION_FACTOR=1   # 오프셋 토픽 복제 계수 설정
+    depends_on:
+      - zookeeper1
+    user: root    # 컨테이너 실행 시 사용할 사용자
+
+  # Kafka UI
+  kafka-ui:
+    image: provectuslabs/kafka-ui
+    container_name: kafka-ui
+    ports:
+      - "8989:8080"    # 호스트 포트와 컨테이너 포트 간의 포트 포워딩 설정: 호스트의 8989 포트와 컨테이너의 8080 포트 간에 통신이 이루어짐
+    restart: always    # 컨테이너 재시작 설정
+    environment:
+      - KAFKA_CLUSTERS_0_NAME=local
+      - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka1:9092  # Kafka 클러스터 부트스트랩 서버 설정
+      - KAFKA_CLUSTERS_0_ZOOKEEPER=zookeeper1:2181

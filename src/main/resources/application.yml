@@ -1,0 +1,80 @@
+spring:
+  application:
+    name: concert-reservation-system
+
+  profiles:
+    active: local
+
+---
+# ========================
+# Local (PostgreSQL)
+# ========================
+spring:
+  config:
+    activate:
+      on-profile: local
+
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/concert_db
+    username: concert_user
+    password: concert_pass
+
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: validate           # Flyway가 스키마 관리
+    open-in-view: false            # 기본값 true → 명시적으로 비활성화
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+    validate-on-migrate: true
+
+logging:
+  level:
+    com.hhplus.concert: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.orm.jdbc.bind: TRACE
+
+server:
+  port: 8080
+
+# 대기열 설정
+queue:
+  max-active-users: 100            # 동시 활성 사용자 최대 수
+  activation-batch-size: 10        # 한 번에 활성화할 수
+  scheduler:
+    activation-interval: 10000     # 대기열 활성화 주기 (10초)
+    expiration-interval: 60000     # 토큰 만료 처리 주기 (60초)
+    reservation-expiry-interval: 30000  # 예약 만료 처리 주기 (30초)
+
+---
+# ========================
+# Test (H2 In-Memory)
+# ========================
+spring:
+  config:
+    activate:
+      on-profile: test
+
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:testdb;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE
+    username: sa
+    password:
+
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+    open-in-view: false
+
+  flyway:
+    enabled: false                 # 테스트는 ddl-auto로 스키마 관리
+
+logging:
+  level:
+    com.hhplus.concert: DEBUG
+    org.springframework: WARN

@@ -1,7 +1,7 @@
 plugins {
 	id 'java'
-	id 'org.springframework.boot' version '3.3.4'
-	id 'io.spring.dependency-management' version '1.1.6'
+	id 'org.springframework.boot' version '3.5.0'
+	id 'io.spring.dependency-management' version '1.1.7'
 }
 
 group = 'com.hhplus'
@@ -24,15 +24,25 @@ repositories {
 }
 
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	implementation 'org.springframework.boot:spring-boot-starter-web'
-	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-	implementation 'org.springframework.boot:spring-boot-starter-cache'
-	implementation 'org.springframework.kafka:spring-kafka'
+	// Spring
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'  // JPA / Hibernate
+	implementation 'org.springframework.boot:spring-boot-starter-web'       // REST API
+	implementation 'org.springframework.boot:spring-boot-starter-validation' // 요청 유효성 검증
+
+	// DB Migration
+	implementation 'org.flywaydb:flyway-core'                               // Flyway
+	implementation 'org.flywaydb:flyway-database-postgresql'                // Flyway PostgreSQL 지원
+
+	// Lombok
 	compileOnly 'org.projectlombok:lombok'
-	runtimeOnly 'org.postgresql:postgresql'
 	annotationProcessor 'org.projectlombok:lombok'
+
+	// DB
+	runtimeOnly 'org.postgresql:postgresql'                                 // PostgreSQL 드라이버
+
+	// Test
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'com.h2database:h2'                                  // 테스트용 인메모리 DB
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 

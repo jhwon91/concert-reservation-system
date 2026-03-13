@@ -1,226 +1,283 @@
-# 콘서트 예약 서비스 유즈케이스
+# 시퀀스 다이어그램
 
-## 1. 유저 토큰 발급 
-1. 사용자는 토큰 발급 API를 호출합니다.
-2. 토큰 도메인은 유저 도메인을 통해 사용자의 정보를 확인 합니다.
-3. 토큰 도메인은 데이터베이스에 사용자 정보로 대기열 등록 여부 확인 합니다.
-4. 토큰 도메인은 현재 활성 사용자 수를 확인합니다.
-   - 활성 사용자 수가 최대치보다 적으면:
-     - 사용자의 상태를 ACTIVE로 설정하고 즉시 서비스 이용이 가능하도록 합니다.
-   - 활성 사용자 수가 최대치에 도달하면:
-     - 사용자의 상태를 WAIT로 설정하고 대기열에 등록합니다.
-5. 토큰 도메인은 토큰을 사용자에게 반환합니다.
+## 1. 유저 토큰 발급
 
-```mermaid
- sequenceDiagram
+- 토큰은 항상 WAITING으로 발급
+- 스케줄러가 주기적으로 WAITING → ACTIVE 전환 (최대 동시 100명)
 
-    participant Client as 사용자
-    participant tokenDomain as 토큰
-    participant UserDomain as 유저 도메인
-    participant Database as 데이터베이스
-
-    Client->>tokenDomain: 토큰 발급 요청
-    tokenDomain->>UserDomain: 사용자 정보 확인
-    UserDomain-->>tokenDomain: 사용자 정보
-
-    tokenDomain->>Database: 사용자 대기열 등록 확인
-    tokenDomain->>Database: 현재 활성 사용자 수 확인
-    
-    alt 활성 슬롯이 있는 경우
-        tokenDomain->>Database: 상태를 ACTIVE로 업데이트
-        Database-->>tokenDomain: 토큰 발급 (상태: ACTIVE)
-        tokenDomain-->>Client: 토큰 반환 (즉시 서비스 이용 가능 알림)
-    else 활성 슬롯이 없는 경우
-        tokenDomain->>Database: 상태를 WAIT로 업데이트
-        Database-->>tokenDomain: 토큰 발급 (상태: WAIT, 대기 순서 제공)
-        tokenDomain-->>Client: 토큰 반환 (대기 중 알림)
-    end
-
-
-```
-
-## 2. 대기열 상태 확인
-1. 사용자는 대기열 상태 확인 API를 호출합니다.
-2. 토큰 도메인은 토큰을 통해 사용자 대기열 정보를 확인합니다.
-3. 토큰 도메인은 데이터베이스에서 토큰의 대기열 상태를 조회합니다.
-4. 토큰 도메인은 사용자의 현재 상태(예: WAIT, ACTIVE, EXPIRED)와 대기열 정보를 사용자에게 반환합니다.
-```mermaid
-sequenceDiagram
-
-    participant Client as 사용자
-    participant tokenDomain as 토큰 도메인
-    participant Database as 데이터베이스
-
-    Client->>tokenDomain: 대기열 상태 확인 요청 (토큰 전송)
-    tokenDomain->>Database: 토큰으로 사용자 대기열 상태 조회
-
-    alt 토큰의 상태가 ACTIVE인 경우
-        Database-->>tokenDomain: 상태: ACTIVE
-        tokenDomain-->>Client: 상태: ACTIVE (서비스 이용 가능 알림)
-    else 토큰의 상태가 WAIT인 경우
-        Database-->>tokenDomain: 상태: WAIT, 대기열 위치 정보
-        tokenDomain-->>Client: 상태: WAIT, 대기열 위치 정보 (대기 중 알림)
-    else 토큰의 상태가 EXPIRED인 경우
-        Database-->>tokenDomain: 상태: EXPIRED
-        tokenDomain-->>Client: 상태: EXPIRED (토큰 만료 안내)
-    end
-```
-
-
-## 3. 예약 가능 날짜 조회
-1. 사용자는 예약 가능한 날짜 목록을 조회하기 위해 예약 가능 날짜 조회 API를 호출합니다.
-2. 예약 도메인은 데이터베이스에서 예약 가능한 날짜 목록을 조회합니다.
-3. 예약 도메인은 예약 가능한 날짜 목록을 사용자에게 반환합니다.
-```mermaid
-sequenceDiagram
-
-    participant Client as 사용자
-    participant ReservationDomain as 예약 도메인
-    participant Database as 데이터베이스
-
-    Client->>ReservationDomain: 예약 가능 날짜 조회 요청 (토큰 전송)
-    alt 토큰의 상태가 ACTIVE인 경우
-        ReservationDomain->>Database: 예약 가능한 날짜 목록 조회
-        Database-->>ReservationDomain: 예약 가능 날짜 목록
-        ReservationDomain-->>Client: 예약 가능 날짜 목록 반환
-    end
-```
-
-
-## 4. 특정 날짜 좌석 조회
-1. 사용자는 특정 날짜를 선택하고, 해당 날짜의 예약 가능한 좌석을 조회하기 위해 좌석 조회 API를 호출합니다.
-2. 예약 도메인은 데이터베이스에서 해당 날짜의 예약 가능한 좌석 목록을 조회합니다.
-3. 예약 도메인은 예약 가능한 좌석 목록을 사용자에게 반환합니다.
-```mermaid
-sequenceDiagram
-
-    participant Client as 사용자
-    participant ReservationDomain as 예약 도메인
-    participant Database as 데이터베이스
-
-    Client->>ReservationDomain: 좌석 조회 요청 (토큰 전송, 날짜 입력)
-    alt 토큰의 상태가 ACTIVE인 경우
-        ReservationDomain->>Database: 해당 날짜의 예약 가능한 좌석 목록 조회
-        Database-->>ReservationDomain: 예약 가능 좌석 목록
-        ReservationDomain-->>Client: 예약 가능 좌석 목록 반환
-    end
-```
-
-
-## 5. 좌석 예약 요청
-1. 사용자는 원하는 날짜와 좌석 번호를 선택하여 좌석 예약 요청 API를 호출합니다.
-2. 예약 도메인은 요청받은 날짜와 좌석 번호의 현재 상태를 확인합니다.
-   - 좌석이 예약 가능하고 임시 배정되지 않은 상태라면
-     - 좌석을 사용자에게 임시 배정합니다.
-     - 임시 배정 시간은 정책에 따라 설정된 시간(예: 5분)으로 설정됩니다.
-     - 스케줄러를 통해 임시 배정 만료 시간을 관리합니다.
-   - 좌석이 이미 임시 배정되었거나 예약된 상태라면
-     - 예약 불가 메시지를 반환하고 프로세스를 종료합니다.
-3. 스케줄러는 임시 배정 시간이 만료되면 해당 좌석의 임시 배정을 해제합니다.
 ```mermaid
 sequenceDiagram
     participant Client as 사용자
-    participant ReservationDomain as 예약 도메인
-    participant Scheduler as 스케줄러
-    participant Database as 데이터베이스
+    participant Filter as QueueTokenFilter
+    participant Controller as QueueController
+    participant Service as IssueQueueTokenService
+    participant Domain as QueueDomainService
+    participant DB as Database
 
-    Client->>ReservationDomain: 좌석 예약 요청 (토큰, 날짜, 좌석 번호)
-    alt 토큰의 상태가 ACTIVE인 경우
-        ReservationDomain->>Database: 좌석 상태 확인 및 잠금
-        alt 좌석이 예약 가능한 경우
-            ReservationDomain->>Database: 좌석 상태를 임시 배정으로 업데이트
-            ReservationDomain->>Scheduler: 임시 배정 만료 타이머 시작
-            ReservationDomain-->>Client: 좌석 임시 배정 완료 메시지 반환
-        else 좌석이 이미 임시 배정 또는 예약된 경우
-            ReservationDomain-->>Client: 좌석 예약 불가 메시지 반환
+    Client->>Controller: POST /api/v1/queue/tokens
+    Controller->>Service: execute(IssueQueueTokenCommand)
+    Service->>DB: 사용자 존재 확인
+    DB-->>Service: User
+    Service->>DB: 현재 WAITING 토큰 수 조회
+    DB-->>Service: currentQueueSize
+    Service->>Domain: issueToken(userId, currentQueueSize)
+    Domain-->>Service: QueueToken (WAITING, position, estimatedWaitSec)
+    Service->>DB: QueueToken 저장
+    DB-->>Service: 저장 완료
+    Service-->>Controller: QueueTokenResponse
+    Controller-->>Client: 200 OK (tokenValue, position, estimatedWaitSec, status: WAITING)
+```
+
+---
+
+## 2. 대기열 상태 조회 (폴링)
+
+```mermaid
+sequenceDiagram
+    participant Client as 사용자
+    participant Controller as QueueController
+    participant Service as GetQueueStatusService
+    participant DB as Database
+
+    loop 폴링 (주기적 호출)
+        Client->>Controller: GET /api/v1/queue/status?token={tokenValue}
+        Controller->>Service: execute(GetQueueStatusQuery)
+        Service->>DB: tokenValue로 QueueToken 조회
+        DB-->>Service: QueueToken
+
+        alt WAITING
+            Service-->>Controller: position, estimatedWaitSec, status: WAITING
+            Controller-->>Client: 200 OK (대기 중)
+        else ACTIVE
+            Service-->>Controller: position: 0, status: ACTIVE
+            Controller-->>Client: 200 OK (서비스 이용 가능)
+        else EXPIRED
+            Service-->>Controller: status: EXPIRED
+            Controller-->>Client: 200 OK (토큰 만료)
+        end
+    end
+```
+
+---
+
+## 3. 대기열 스케줄러 (자동 활성화 / 만료)
+
+```mermaid
+sequenceDiagram
+    participant Scheduler as QueueScheduler
+    participant DB as Database
+
+    loop 10초마다 (활성화)
+        Scheduler->>DB: ACTIVE 토큰 수 조회
+        DB-->>Scheduler: activeCount
+        Scheduler->>DB: WAITING 토큰 조회 (position 순, limit: 100 - activeCount)
+        DB-->>Scheduler: waitingTokens
+        loop 각 토큰
+            Scheduler->>DB: QueueToken.activate() 저장 (WAITING → ACTIVE)
         end
     end
 
-    Scheduler-->>ReservationDomain: 임시 배정 만료 알림
-    ReservationDomain->>Database: 좌석 임시 배정 해제 (상태 업데이트)
-```
-
-
-## 6. 잔액 충전
-1. 사용자는 잔액을 충전하기 위해 잔액 충전 API를 호출합니다.
-2. 결제 도메인은 충전할 금액에 대한 유효성을 검사합니다.
-3. 데이터베이스에서 사용자의 현재 잔액을 조회합니다.
-4. 잔액에 충전할 금액을 더하여 업데이트합니다.
-5. 결제 도메인은 잔액 충전 완료 메시지를 사용자에게 반환합니다.
-```mermaid
-sequenceDiagram
-    participant Client as 사용자
-    participant PaymentDomain as 결제 도메인
-    participant Database as 데이터베이스
-
-    Client->>PaymentDomain: 잔액 충전 요청 (사용자 식별자, 충전 금액)
-    PaymentDomain->>PaymentDomain: 충전 금액 유효성 검사
-    alt 금액이 유효한 경우
-        PaymentDomain->>Database: 사용자 잔액 조회
-        Database-->>PaymentDomain: 현재 잔액
-        PaymentDomain->>Database: 잔액 업데이트 (현재 잔액 + 충전 금액)
-        Database-->>PaymentDomain: 잔액 업데이트 완료
-        PaymentDomain-->>Client: 잔액 충전 완료 메시지 (현재 잔액)
-    end
-```
-
-## 7. 잔액 조회
-1. 사용자는 자신의 잔액을 확인하기 위해 잔액 조회 API를 호출합니다.
-2. 결제 도메인은 데이터베이스에서 사용자의 현재 잔액을 조회합니다.
-3. 결제 도메인은 현재 잔액 정보를 사용자에게 반환합니다.
-```mermaid
-sequenceDiagram
-    participant Client as 사용자
-    participant PaymentDomain as 결제 도메인
-    participant Database as 데이터베이스
-
-    Client->>PaymentDomain: 잔액 조회 요청 (사용자 식별자)
-    PaymentDomain->>Database: 사용자 잔액 조회
-    Database-->>PaymentDomain: 현재 잔액
-    PaymentDomain-->>Client: 현재 잔액 정보 반환
-```
-
-
-## 8. 결제 및 예약 확정
-1. 사용자는 임시 배정된 좌석에 대해 결제 API를 호출하여 결제를 진행합니다.
-2. 토큰 도메인은 사용자의 상태가 ACTIVE인지 확인합니다.
-3. 예약 도메인은 사용자가 임시 배정받은 좌석인지 확인합니다.
-    - 임시 배정 시간이 유효한지 확인합니다.
-4. 결제 도메인은 사용자의 잔액을 확인하고, 결제할 금액이 충분한지 검사합니다.
-5. 결제 도메인은 결제 처리를 진행하고, 결제 내역을 생성합니다.
-6. 예약 도메인은 해당 좌석의 소유권을 사용자에게 최종 배정합니다.
-7. 토큰 도메인은 사용자의 대기열 토큰을 만료(EXPIRED) 상태로 변경합니다.
-8. 토큰 도메인은 활성 사용자 수를 감소시키고, 대기열에서 다음 대기자를 활성화합니다.
-9. 결제 도메인은 결제 완료 메시지를 사용자에게 반환합니다.
-```mermaid
-sequenceDiagram
-    participant Client as 사용자
-    participant TokenDomain as 토큰 도메인
-    participant ReservationDomain as 예약 도메인
-    participant PaymentDomain as 결제 도메인
-    participant Database as 데이터베이스
-
-    Client->>TokenDomain: 결제 요청 (토큰, 좌석 정보, 결제 정보)
-
-    alt 토큰의 상태가 ACTIVE인 경우
-        ReservationDomain->>ReservationDomain: 사용자 임시 배정 좌석 확인
-        ReservationDomain->>Database: 좌석 임시 배정 상태 및 만료 시간 확인
-        alt 임시 배정이 유효한 경우
-            PaymentDomain->>Database: 사용자 잔액 조회
-            Database-->>PaymentDomain: 현재 잔액
-            PaymentDomain->>PaymentDomain: 결제 금액과 잔액 비교
-            alt 잔액이 충분한 경우
-                PaymentDomain->>Database: 잔액 차감 (현재 잔액 - 결제 금액)
-                PaymentDomain->>Database: 결제 내역 생성
-                ReservationDomain->>Database: 좌석 상태를 RESERVED로 업데이트
-                TokenDomain->>Database: 토큰을 EXPIRED로 업데이트
-                TokenDomain->>TokenDomain: 활성 사용자 수 감소 및 다음 대기자 활성화
-                TokenDomain-->>Client: 결제 성공 및 예약 완료 메시지 반환
-            else 잔액이 부족한 경우
-                PaymentDomain-->>Client: 결제 실패 메시지 반환 (잔액 부족)
-            end
-        else 임시 배정이 만료된 경우
-            ReservationDomain-->>Client: 임시 배정 만료로 인한 예약 실패 메시지 반환
+    loop 60초마다 (만료)
+        Scheduler->>DB: expires_at < now() 인 토큰 조회
+        DB-->>Scheduler: expiredTokens
+        loop 각 토큰
+            Scheduler->>DB: QueueToken.expire() 저장 (→ EXPIRED)
         end
     end
+```
+
+---
+
+## 4. 예약 가능 날짜 조회
+
+- 토큰 불필요
+
+```mermaid
+sequenceDiagram
+    participant Client as 사용자
+    participant Controller as ConcertController
+    participant Service as GetAvailableDatesService
+    participant DB as Database
+
+    Client->>Controller: GET /api/v1/concerts/{concertId}/dates
+    Controller->>Service: execute(GetAvailableDatesQuery)
+    Service->>DB: 오늘 이후 ConcertDate 조회 (availableSeats > 0)
+    DB-->>Service: List<ConcertDate>
+    Service-->>Controller: List<ConcertDateResponse>
+    Controller-->>Client: 200 OK
+```
+
+---
+
+## 5. 예약 가능 좌석 조회
+
+- 토큰 불필요
+
+```mermaid
+sequenceDiagram
+    participant Client as 사용자
+    participant Controller as ConcertController
+    participant Service as GetAvailableSeatsService
+    participant DB as Database
+
+    Client->>Controller: GET /api/v1/concerts/dates/{concertDateId}/seats
+    Controller->>Service: execute(GetAvailableSeatsQuery)
+    Service->>DB: AVAILABLE 상태 Seat 조회
+    DB-->>Service: List<Seat>
+    Service-->>Controller: List<SeatResponse>
+    Controller-->>Client: 200 OK (seatNumber, price, status)
+```
+
+---
+
+## 6. 좌석 예약 요청
+
+- `X-Queue-Token` 헤더 필요 (ACTIVE 상태)
+- 좌석 임시 점유 5분, 스케줄러가 만료 처리
+
+```mermaid
+sequenceDiagram
+    participant Client as 사용자
+    participant Filter as QueueTokenValidationFilter
+    participant Controller as ReservationController
+    participant Service as CreateReservationService
+    participant Domain as ConcertDomainService
+    participant DB as Database
+
+    Client->>Filter: POST /api/v1/reservations (X-Queue-Token 헤더)
+    Filter->>DB: tokenValue로 QueueToken 조회
+    DB-->>Filter: QueueToken
+
+    alt 토큰 ACTIVE
+        Filter->>Controller: 요청 전달
+        Controller->>Service: execute(CreateReservationCommand)
+        Service->>DB: Seat 조회 (@Version 낙관적 잠금)
+        DB-->>Service: Seat
+
+        alt 좌석 AVAILABLE
+            Service->>Domain: validateSeatAvailable(seat)
+            Service->>DB: Seat.reserve() 저장 (AVAILABLE → RESERVED)
+            Service->>DB: Reservation 저장 (PENDING, expiresAt = now + 5분)
+            Service-->>Controller: ReservationResponse
+            Controller-->>Client: 200 OK (reservationId, expiresAt)
+        else 좌석 선점됨
+            Service-->>Client: 409 Conflict (이미 예약된 좌석)
+        end
+    else 토큰 없음/비활성
+        Filter-->>Client: 401 Unauthorized
+    end
+```
+
+---
+
+## 7. 예약 만료 스케줄러
+
+```mermaid
+sequenceDiagram
+    participant Scheduler as ReservationScheduler
+    participant DB as Database
+
+    loop 30초마다
+        Scheduler->>DB: PENDING + expires_at < now() 예약 조회
+        DB-->>Scheduler: expiredReservations
+        loop 각 예약
+            Scheduler->>DB: Reservation.cancel() 저장 (→ CANCELLED)
+            Scheduler->>DB: Seat.release() 저장 (→ AVAILABLE)
+        end
+    end
+```
+
+---
+
+## 8. 잔액 충전
+
+```mermaid
+sequenceDiagram
+    participant Client as 사용자
+    participant Controller as UserController
+    participant Service as ChargePointService
+    participant Domain as PointDomainService
+    participant DB as Database
+
+    Client->>Controller: PATCH /api/v1/users/{userId}/point
+    Controller->>Service: execute(ChargePointCommand)
+    Service->>DB: UserPoint 비관적 잠금 조회
+    DB-->>Service: UserPoint
+    Service->>Domain: chargePoint(userPoint, amount)
+    Domain->>Domain: 금액 검증 (최소 1,000 / 최대 1,000,000 / 잔액 최대 10,000,000)
+    Domain-->>Service: PointTransaction
+    Service->>DB: UserPoint 저장 (잔액 업데이트)
+    Service->>DB: PointTransaction 저장
+    Service-->>Controller: UserPointResponse
+    Controller-->>Client: 200 OK (balance)
+```
+
+---
+
+## 9. 잔액 조회
+
+```mermaid
+sequenceDiagram
+    participant Client as 사용자
+    participant Controller as UserController
+    participant Service as GetUserPointService
+    participant DB as Database
+
+    Client->>Controller: GET /api/v1/users/{userId}/point
+    Controller->>Service: execute(GetUserPointQuery)
+    Service->>DB: UserPoint 조회
+    DB-->>Service: UserPoint
+    Service-->>Controller: UserPointResponse
+    Controller-->>Client: 200 OK (balance)
+```
+
+---
+
+## 10. 결제
+
+- `X-Queue-Token` 헤더 필요 (ACTIVE 상태)
+- 포인트 차감 → 예약 확정 → 좌석 확정 → 토큰 만료
+
+```mermaid
+sequenceDiagram
+    participant Client as 사용자
+    participant Filter as QueueTokenValidationFilter
+    participant Controller as PaymentController
+    participant Service as ProcessPaymentService
+    participant PayDomain as PaymentDomainService
+    participant PointDomain as PointDomainService
+    participant DB as Database
+
+    Client->>Filter: POST /api/v1/payments (X-Queue-Token 헤더)
+    Filter->>DB: QueueToken 조회 및 ACTIVE 검증
+    Filter->>Controller: 요청 전달
+
+    Controller->>Service: execute(ProcessPaymentCommand)
+
+    Service->>DB: Reservation 조회
+    DB-->>Service: Reservation (PENDING 검증, 만료 검증)
+
+    Service->>DB: UserPoint 비관적 잠금 조회
+    DB-->>Service: UserPoint
+
+    Service->>PayDomain: createPayment(reservation, user, POINT)
+    PayDomain-->>Service: Payment (PENDING)
+    Service->>DB: Payment 저장
+
+    Service->>PayDomain: processPointPayment(payment, userPoint)
+    PayDomain->>PointDomain: usePoint(userPoint, amount)
+    PointDomain->>PointDomain: 잔액 검증
+    PointDomain-->>PayDomain: PointTransaction
+    PayDomain-->>Service: transactionId
+
+    Service->>DB: UserPoint 저장 (잔액 차감)
+    Service->>DB: PointTransaction 저장
+
+    Service->>DB: Reservation.confirm() 저장 (PENDING → CONFIRMED)
+    Service->>DB: Seat.occupy() 저장 (RESERVED → OCCUPIED)
+    Service->>DB: QueueToken.expire() 저장 (ACTIVE → EXPIRED)
+    Service->>DB: Payment.complete() 저장 (PENDING → COMPLETED)
+
+    Service-->>Controller: PaymentResponse
+    Controller-->>Client: 200 OK (paymentId, amount, status: COMPLETED)
 ```

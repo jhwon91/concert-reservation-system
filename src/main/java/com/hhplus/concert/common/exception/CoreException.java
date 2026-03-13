@@ -1,0 +1,22 @@
+package com.hhplus.concert.common.exception;
+
+import lombok.Getter;
+
+@Getter
+public class CoreException extends RuntimeException {
+
+    private final ErrorType errorType;
+    private final Object payload;
+
+    public CoreException(ErrorType errorType) {
+        super(errorType.getMessage());
+        this.errorType = errorType;
+        this.payload = null;
+    }
+
+    public CoreException(ErrorType errorType, Object payload) {
+        super(errorType.getMessage());
+        this.errorType = errorType;
+        this.payload = payload;
+    }
+}

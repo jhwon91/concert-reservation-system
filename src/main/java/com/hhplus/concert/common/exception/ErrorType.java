@@ -18,6 +18,9 @@ public enum ErrorType {
 
     // 401 Unauthorized
     TOKEN_NOT_ACTIVE(ErrorCode.UNAUTHORIZED, "활성 상태의 토큰이 아닙니다.", LogLevel.INFO),
+
+    // 403 Forbidden
+    RESERVATION_ACCESS_DENIED(ErrorCode.FORBIDDEN, "해당 예약에 대한 권한이 없습니다.", LogLevel.INFO),
     TOKEN_EXPIRED(ErrorCode.UNAUTHORIZED, "만료된 토큰입니다.", LogLevel.INFO),
     TOKEN_MISSING(ErrorCode.UNAUTHORIZED, "토큰이 누락되었습니다.", LogLevel.INFO),
 

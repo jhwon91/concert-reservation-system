@@ -74,6 +74,14 @@ spring:
   flyway:
     enabled: false                 # 테스트는 ddl-auto로 스키마 관리
 
+queue:
+  max-active-users: 100
+  activation-batch-size: 10
+  scheduler:
+    activation-interval: 10000
+    expiration-interval: 60000
+    reservation-expiry-interval: 30000
+
 logging:
   level:
     com.hhplus.concert: DEBUG

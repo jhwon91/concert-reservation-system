@@ -1,4 +1,4 @@
-package com.hhplus.concert.application.user;
+package com.hhplus.concert.user.application;
 
 import com.hhplus.concert.common.exception.CoreException;
 import com.hhplus.concert.common.exception.ErrorType;

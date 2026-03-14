@@ -1,4 +1,4 @@
-package com.hhplus.concert.application.reservation;
+package com.hhplus.concert.reservation.application;
 
 import com.hhplus.concert.common.exception.CoreException;
 import com.hhplus.concert.common.exception.ErrorType;

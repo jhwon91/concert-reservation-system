@@ -9,7 +9,9 @@ import org.springframework.boot.logging.LogLevel;
 public enum ErrorType {
 
     // 400 Bad Request
-    INVALID_CHARGE_AMOUNT(ErrorCode.BAD_REQUEST, "충전 금액은 0보다 커야 합니다.", LogLevel.INFO),
+    INVALID_CHARGE_AMOUNT(ErrorCode.BAD_REQUEST, "충전 금액은 1,000원 이상이어야 합니다.", LogLevel.INFO),
+    CHARGE_AMOUNT_EXCEEDED(ErrorCode.BAD_REQUEST, "1회 최대 충전 금액은 1,000,000원입니다.", LogLevel.INFO),
+    MAX_BALANCE_EXCEEDED(ErrorCode.BAD_REQUEST, "최대 보유 잔액은 10,000,000원입니다.", LogLevel.INFO),
     INVALID_SEAT_NUMBER(ErrorCode.BAD_REQUEST, "좌석 번호는 1~50 사이여야 합니다.", LogLevel.INFO),
     INVALID_MONEY_AMOUNT(ErrorCode.BAD_REQUEST, "금액은 0 이상이어야 합니다.", LogLevel.INFO),
     INSUFFICIENT_BALANCE(ErrorCode.BAD_REQUEST, "잔액이 부족합니다.", LogLevel.INFO),

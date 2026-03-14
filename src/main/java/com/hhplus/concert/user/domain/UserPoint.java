@@ -45,7 +45,7 @@ public class UserPoint extends BaseEntity {
 
     public void use(BigDecimal amount) {
         if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new CoreException(ErrorType.INVALID_CHARGE_AMOUNT, amount);
+            throw new CoreException(ErrorType.INVALID_MONEY_AMOUNT, amount);
         }
         if (this.balance.compareTo(amount) < 0) {
             throw new CoreException(ErrorType.INSUFFICIENT_BALANCE, this.balance);

@@ -15,6 +15,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(queueTokenInterceptor)
-                .addPathPatterns("/api/v1/reservations", "/api/v1/payments");
+                .addPathPatterns("/api/v1/reservations", "/api/v1/payments")
+                .excludePathPatterns("/swagger-ui/**", "/v3/api-docs/**");
     }
 }

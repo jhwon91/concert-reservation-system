@@ -3,7 +3,7 @@ package com.hhplus.concert.user.application;
 import com.hhplus.concert.common.exception.CoreException;
 import com.hhplus.concert.common.exception.ErrorType;
 import com.hhplus.concert.user.application.dto.ChargePointCommand;
-import com.hhplus.concert.user.application.dto.UserPointResponse;
+import com.hhplus.concert.user.application.dto.UserPointResult;
 import com.hhplus.concert.user.application.service.ChargePointService;
 import com.hhplus.concert.user.domain.PointTransaction;
 import com.hhplus.concert.user.domain.PointTransactionType;
@@ -57,7 +57,7 @@ class ChargePointServiceTest {
         given(pointTransactionRepository.save(any())).willReturn(transaction);
 
         // when
-        UserPointResponse response = chargePointService.charge(new ChargePointCommand(userId, amount));
+        UserPointResult response = chargePointService.charge(new ChargePointCommand(userId, amount));
 
         // then
         assertThat(response.userId()).isEqualTo(userId);

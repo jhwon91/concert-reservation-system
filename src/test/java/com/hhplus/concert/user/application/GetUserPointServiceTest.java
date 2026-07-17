@@ -3,7 +3,7 @@ package com.hhplus.concert.user.application;
 import com.hhplus.concert.common.exception.CoreException;
 import com.hhplus.concert.common.exception.ErrorType;
 import com.hhplus.concert.user.application.dto.GetUserPointQuery;
-import com.hhplus.concert.user.application.dto.UserPointResponse;
+import com.hhplus.concert.user.application.dto.UserPointResult;
 import com.hhplus.concert.user.application.service.GetUserPointService;
 import com.hhplus.concert.user.domain.UserPoint;
 import com.hhplus.concert.user.domain.repository.UserPointRepository;
@@ -42,7 +42,7 @@ class GetUserPointServiceTest {
         given(userPointRepository.findByUserId(userId)).willReturn(Optional.of(userPoint));
 
         // when
-        UserPointResponse response = getUserPointService.getPoint(new GetUserPointQuery(userId));
+        UserPointResult response = getUserPointService.getPoint(new GetUserPointQuery(userId));
 
         // then
         assertThat(response.userId()).isEqualTo(userId);

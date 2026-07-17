@@ -3,10 +3,11 @@ package com.hhplus.concert.user.presentation;
 import com.hhplus.concert.common.response.CommonResponse;
 import com.hhplus.concert.user.application.dto.ChargePointCommand;
 import com.hhplus.concert.user.application.dto.GetUserPointQuery;
-import com.hhplus.concert.user.application.dto.UserPointResponse;
+import com.hhplus.concert.user.application.dto.UserPointResult;
 import com.hhplus.concert.user.application.service.ChargePointService;
 import com.hhplus.concert.user.application.service.GetUserPointService;
 import com.hhplus.concert.user.presentation.dto.ChargePointRequest;
+import com.hhplus.concert.user.presentation.dto.UserPointResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -26,19 +27,16 @@ public class UserController {
 
     @Operation(summary = "잔액 조회")
     @GetMapping("/{userId}/point")
-    public ResponseEntity<CommonResponse<UserPointResponse>> getPoint(
-            @PathVariable UUID userId) {
-        UserPointResponse response = getUserPointService.getPoint(new GetUserPointQuery(userId));
-        return ResponseEntity.ok(CommonResponse.success(response));
+    public ResponseEntity<CommonResponse<UserPointResponse>> getPoint(@PathVariable UUID userId) {
+        UserPointResult result = getUserPointService.getPoint(new GetUserPointQuery(userId));
+        return ResponseEntity.ok(CommonResponse.success(UserPointResponse.from(result)));
     }
 
     @Operation(summary = "잔액 충전")
     @PatchMapping("/{userId}/point")
-    public ResponseEntity<CommonResponse<UserPointResponse>> chargePoint(
-            @PathVariable UUID userId,
-            @RequestBody ChargePointRequest request) {
-        UserPointResponse response = chargePointService.charge(
+    public ResponseEntity<CommonResponse<UserPointResponse>> chargePoint(@PathVariable UUID userId, @RequestBody ChargePointRequest request) {
+        UserPointResult result = chargePointService.charge(
                 new ChargePointCommand(userId, request.amount()));
-        return ResponseEntity.ok(CommonResponse.success(response));
+        return ResponseEntity.ok(CommonResponse.success(UserPointResponse.from(result)));
     }
 }

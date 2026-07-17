@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hhplus.concert.common.exception.CoreException;
 import com.hhplus.concert.common.exception.ErrorType;
 import com.hhplus.concert.queue.domain.repository.QueueTokenRepository;
-import com.hhplus.concert.user.application.dto.UserPointResponse;
+import com.hhplus.concert.user.application.dto.UserPointResult;
 import com.hhplus.concert.user.application.service.ChargePointService;
 import com.hhplus.concert.user.application.service.GetUserPointService;
 import com.hhplus.concert.user.presentation.dto.ChargePointRequest;
@@ -49,9 +49,9 @@ class UserControllerTest {
     void 잔액_조회_성공() throws Exception {
         // given
         UUID userId = UUID.randomUUID();
-        UserPointResponse response = new UserPointResponse(userId, BigDecimal.valueOf(50_000));
+        UserPointResult result = new UserPointResult(userId, BigDecimal.valueOf(50_000));
 
-        given(getUserPointService.getPoint(any())).willReturn(response);
+        given(getUserPointService.getPoint(any())).willReturn(result);
 
         // when & then
         mockMvc.perform(get("/api/v1/users/{userId}/point", userId))
@@ -79,9 +79,9 @@ class UserControllerTest {
         // given
         UUID userId = UUID.randomUUID();
         BigDecimal chargedBalance = BigDecimal.valueOf(10_000);
-        UserPointResponse response = new UserPointResponse(userId, chargedBalance);
+        UserPointResult result = new UserPointResult(userId, chargedBalance);
 
-        given(chargePointService.charge(any())).willReturn(response);
+        given(chargePointService.charge(any())).willReturn(result);
 
         ChargePointRequest request = new ChargePointRequest(BigDecimal.valueOf(10_000));
 

@@ -3,7 +3,7 @@ package com.hhplus.concert.user.application.service;
 import com.hhplus.concert.common.exception.CoreException;
 import com.hhplus.concert.common.exception.ErrorType;
 import com.hhplus.concert.user.application.dto.ChargePointCommand;
-import com.hhplus.concert.user.application.dto.UserPointResponse;
+import com.hhplus.concert.user.application.dto.UserPointResult;
 import com.hhplus.concert.user.domain.PointTransaction;
 import com.hhplus.concert.user.domain.UserPoint;
 import com.hhplus.concert.user.domain.repository.PointTransactionRepository;
@@ -22,7 +22,7 @@ public class ChargePointService {
     private final PointDomainService pointDomainService;
 
     @Transactional
-    public UserPointResponse charge(ChargePointCommand command) {
+    public UserPointResult charge(ChargePointCommand command) {
         UserPoint userPoint = userPointRepository.findByUserIdWithLock(command.userId())
                 .orElseThrow(() -> new CoreException(ErrorType.USER_POINT_NOT_FOUND, command.userId()));
 
@@ -31,6 +31,6 @@ public class ChargePointService {
         userPointRepository.save(userPoint);
         pointTransactionRepository.save(transaction);
 
-        return UserPointResponse.from(userPoint);
+        return UserPointResult.from(userPoint);
     }
 }
